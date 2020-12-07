@@ -3,8 +3,10 @@ package com.documentManager.docManager.services;
 import com.documentManager.docManager.models.ConfluenceReleaseInfo;
 import com.documentManager.docManager.models.JiraTicket;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Service
 public class ConfluenceService {
 
     @Autowired

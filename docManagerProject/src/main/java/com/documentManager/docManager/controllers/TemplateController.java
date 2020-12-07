@@ -1,6 +1,7 @@
 package com.documentManager.docManager.controllers;
 
 import com.documentManager.docManager.models.JiraTicket;
+import com.documentManager.docManager.services.ConfluenceService;
 import com.documentManager.docManager.services.JiraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,9 @@ public class TemplateController {
     @Autowired
     private JiraService jiraService;
 
+    @Autowired
+    private ConfluenceService confluenceService;
+
     @GetMapping("/generateTER/{id}")
     public void generateTER(@PathVariable String id) throws IOException {
         DocumentGeneratorController.setDocumentTemplate("ter_template.docx");
@@ -32,8 +36,15 @@ public class TemplateController {
             rowCells.add(jiraTicket.getSeverity());
             rowCells.add(jiraTicket.getStatus());
             DocumentGeneratorController.addRowToTable( "Issue type - Key - Summary - Priority - Severity - Status",rowCells);
+
+
         }
-        DocumentGeneratorController.replaceTextInParagraph("RELEASE_NO", "Release_Number_TEST_6");
+
+        DocumentGeneratorController.replaceTextInParagraph("RELEASE_NO", confluenceService.getConfluenceReleaseInfo(id).getReleaseNumber());
+        DocumentGeneratorController.replaceTextInParagraph("TITLE", confluenceService.getConfluenceReleaseInfo(id).getAppName());
+        DocumentGeneratorController.replaceTextInParagraph("RELEASE_DATE", confluenceService.getConfluenceReleaseInfo(id).getReleaseDate());
+        DocumentGeneratorController.replaceTextInParagraph("REGION", confluenceService.getConfluenceReleaseInfo(id).getRegion());
+
         DocumentGeneratorController.saveDocument("modified.docx");
 
     }
