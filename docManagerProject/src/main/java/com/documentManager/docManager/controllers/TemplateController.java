@@ -1,6 +1,8 @@
 package com.documentManager.docManager.controllers;
 
+import com.documentManager.docManager.models.ALMReleaseInfo;
 import com.documentManager.docManager.models.JiraTicket;
+import com.documentManager.docManager.services.ALMService;
 import com.documentManager.docManager.services.ConfluenceService;
 import com.documentManager.docManager.services.JiraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,11 @@ public class TemplateController {
     @Autowired
     private ConfluenceService confluenceService;
 
-    @GetMapping("/generateTER/{id}")
-    public void generateTER(@PathVariable String id) throws IOException {
+    @Autowired
+    private ALMService almService;
+
+    @GetMapping("/generateTER/{id}/{releaseNo}")
+    public void generateTER(@PathVariable String id, @PathVariable String releaseNo) throws IOException {
         DocumentGeneratorController.setDocumentTemplate("ter_template.docx");
 
         for (JiraTicket jiraTicket: jiraService.getJiraTicketsById(id)) {
@@ -39,6 +44,29 @@ public class TemplateController {
 
 
         }
+        List<String> almCells = new ArrayList<>();
+        //almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getReleaseNo());
+        Integer totalTestCases = almService.getALMReleaseInfoByReleaseNo(releaseNo).getTotalTestCases();
+        Integer passedTestCases = almService.getALMReleaseInfoByReleaseNo(releaseNo).getPassedTestCases();
+        Integer failedTestCases = almService.getALMReleaseInfoByReleaseNo(releaseNo).getFailedTestCases();
+        Integer blockedTestCases = almService.getALMReleaseInfoByReleaseNo(releaseNo).getBlockedTestCases();
+        Integer notCompletedTestCases = almService.getALMReleaseInfoByReleaseNo(releaseNo).getNotCompletedTestCases();
+
+        Integer percentagePassedTCs = (passedTestCases * 100) / totalTestCases;
+        Integer percentageFailedTCs = (failedTestCases * 100) / totalTestCases;
+        Integer percentageBlockedTCs = (blockedTestCases * 100) /totalTestCases;
+        Integer percentageNotCompletedTCs = (notCompletedTestCases * 100) /totalTestCases;
+
+        almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getFunction());
+        almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getTotalTestCases().toString());
+        almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getPassedTestCases().toString() + ", " + percentagePassedTCs +"%");
+        almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getNotCompletedTestCases().toString() + ", " + percentageNotCompletedTCs +"%");
+        almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getFailedTestCases().toString() + ", " + percentageFailedTCs +"%");
+        almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getBlockedTestCases().toString() + ", " + percentageBlockedTCs +"%");
+
+
+
+        DocumentGeneratorController.addRowToTable( "Function/modules - Total tcs - Tcs passed - Tcs not completed - Tcs failed - Tcs blocked", almCells);
 
         DocumentGeneratorController.replaceTextInParagraph("RELEASE_NO", confluenceService.getConfluenceReleaseInfo(id).getReleaseNumber());
         DocumentGeneratorController.replaceTextInParagraph("TITLE", confluenceService.getConfluenceReleaseInfo(id).getAppName());
@@ -46,7 +74,7 @@ public class TemplateController {
         DocumentGeneratorController.replaceTextInParagraph("REGION", confluenceService.getConfluenceReleaseInfo(id).getRegion());
 
         DocumentGeneratorController.saveDocument("modified.docx");
-//
+
     }
 
 }
