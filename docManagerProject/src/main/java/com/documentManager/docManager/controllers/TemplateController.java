@@ -41,9 +41,8 @@ public class TemplateController {
             rowCells.add(jiraTicket.getSeverity());
             rowCells.add(jiraTicket.getStatus());
             DocumentGeneratorController.addRowToTable( "Issue type - Key - Summary - Priority - Severity - Status",rowCells);
-
-
         }
+
         List<String> almCells = new ArrayList<>();
         //almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getReleaseNo());
         Integer totalTestCases = almService.getALMReleaseInfoByReleaseNo(releaseNo).getTotalTestCases();
@@ -63,8 +62,6 @@ public class TemplateController {
         almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getNotCompletedTestCases().toString() + ", " + percentageNotCompletedTCs +"%");
         almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getFailedTestCases().toString() + ", " + percentageFailedTCs +"%");
         almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getBlockedTestCases().toString() + ", " + percentageBlockedTCs +"%");
-
-
 
         DocumentGeneratorController.addRowToTable( "Function/modules - Total tcs - Tcs passed - Tcs not completed - Tcs failed - Tcs blocked", almCells);
 
