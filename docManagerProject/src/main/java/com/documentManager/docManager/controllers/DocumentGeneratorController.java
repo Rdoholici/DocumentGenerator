@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DocumentGeneratorController {
     private static XWPFDocument document;
@@ -33,16 +34,19 @@ public class DocumentGeneratorController {
     }
 
     public static void replaceTextInParagraph(String textToReplace, String newValue) {
-        XWPFParagraph para = document.getParagraphs().stream().filter(p -> p.getText().contains(textToReplace)).findFirst().get();
-        List<XWPFRun> runs = para.getRuns();
-        if (runs != null) {
-            for (XWPFRun run : runs) {
-                String text = run.getText(0);
-                if (text.contains(textToReplace)) {
-                    run.setText(newValue, 0);
+        List<XWPFParagraph> para = document.getParagraphs().stream().filter(p -> p.getText().contains(textToReplace)).collect(Collectors.toList());
+        for ( XWPFParagraph paragraph : para) {
+            List<XWPFRun> runs = paragraph.getRuns();
+            if (runs != null) {
+                for (XWPFRun run : runs) {
+                    String text = run.getText(0);
+                    if (text.contains(textToReplace)) {
+                        run.setText(newValue, 0);
+                    }
                 }
             }
         }
+
     }
 
     private static XWPFTable findTableByHeader(String header) {

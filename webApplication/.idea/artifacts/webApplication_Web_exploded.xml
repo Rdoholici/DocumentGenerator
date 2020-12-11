@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="webApplication:Web exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/webApplication_Web_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="webApplication/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="webApplication" />
+          <element id="library" level="application" name="jquery" />
+          <element id="library" level="application" name="bootstrap" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: javax.servlet:javax.servlet-api:3.1.0" />
+          <element id="library" level="project" name="Maven: commons-io:commons-io:2.2" />
+          <element id="library" level="project" name="Maven: commons-fileupload:commons-fileupload:1.3" />
+          <element id="library" level="project" name="Maven: org.jetbrains:annotations:20.1.0" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
