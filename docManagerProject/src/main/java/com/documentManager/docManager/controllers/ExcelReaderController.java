@@ -2,7 +2,10 @@ package com.documentManager.docManager.controllers;
 
 import com.documentManager.docManager.models.JiraTicket;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +16,13 @@ public class ExcelReaderController {
 
     /**
      * Method to get jira tickets from a provided excel file.
+     *
      * @param filePath the location of the excel file.
      * @return a list of jira tickets serialized from the excel file.
      * @throws IOException
      * @throws InvalidFormatException
      */
     public static List<JiraTicket> extractJiraTicketsFromExcelFile(String filePath) throws IOException, InvalidFormatException {
-
         List<JiraTicket> toReturn = new ArrayList<>();
         Workbook workbook = WorkbookFactory.create(new File(filePath));
         Sheet sheet = workbook.getSheetAt(0);
