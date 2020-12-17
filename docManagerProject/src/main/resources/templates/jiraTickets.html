@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>JiraTickets</title>
+</head>
+<body>
+<table>
+    <tr>
+        <th>issueType</th>
+        <th>issue_key</th>
+        <th>description</th>
+        <th>severity</th>
+        <th>priority</th>
+        <th>status</th>
+    </tr>
+    <tr th:each="jiraTicket : ${JiraTickets}">
+        <td th:text="${jiraTicket.getIssueType()}"></td>
+        <td th:text="${jiraTicket.getIssue_key()}"></td>
+        <td th:text="${jiraTicket.getDescription()}"></td>
+        <td th:text="${jiraTicket.getSeverity()}"></td>
+        <td th:text="${jiraTicket.getPriority()}"></td>
+        <td th:text="${jiraTicket.getStatus()}"></td>
+    </tr>
+</table>
+
+
+</body>
+</html>

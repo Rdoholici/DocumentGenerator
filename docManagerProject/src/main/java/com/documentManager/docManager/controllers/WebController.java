@@ -31,6 +31,7 @@ public class WebController {
 //    @ResponseBody
 
     private String returnNarID(@RequestParam(value = "narID") String narID, Model model) {
+        System.out.println("111111 " + narID);
         List<JiraTicket> listOfJiraTicket= Arrays.asList(jiraService.getJiraTicketsById(narID));
         model.addAttribute("JiraTickets", listOfJiraTicket);
         return "jiraTickets";
