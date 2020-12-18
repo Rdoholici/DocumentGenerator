@@ -52,8 +52,6 @@ public class TemplateController {
                 + "%");
     }
 
-
-
     @GetMapping("/generateTER/{id}/{releaseNo}")
     public void generateTER(@PathVariable String id, @PathVariable String releaseNo) throws IOException, InvalidFormatException {
         DocumentGeneratorController.setDocumentTemplate("ter_template.docx");
@@ -95,5 +93,4 @@ public class TemplateController {
 
         DocumentGeneratorController.saveDocument("modified.docx");
     }
-
 }
