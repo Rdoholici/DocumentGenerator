@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+import java.util.UUID;
 
 @Controller
 @ControllerAdvice
@@ -21,7 +23,15 @@ public class MainController {
 
     //file location
     private final String UPLOAD_DIR = "./uploads/";
+
+    //variable for file name manipulation
+
+    UUID randId = UUID.randomUUID();
+
+    //variables for html manipulation
     boolean errorFlag = true;
+    int progressBar = 0;
+
 
     //Check file size:
     //StandardServletMultipartResolver
@@ -48,19 +58,8 @@ public class MainController {
         return "index";
     }
 
-//    @GetMapping("/uploadExistingTemplate")
-//    public String uploadExistingFile(Model model) {
-//        FileType fileType = new FileType();
-//        model.addAttribute("fileType", fileType);
-//
-//        List<String> listFileTypes = Arrays.asList("TER","Daily Status","Retrospective Status");
-//        model.addAttribute("listFileTypes", listFileTypes);
-//
-//        return "index";
-//    }
-
-    @PostMapping("/uploadNewTemplate")
-    public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes) {
+    @PostMapping("/page1")
+    public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes, Model model) {
 
         // check if file is empty
         if (file.isEmpty()) {
@@ -71,20 +70,28 @@ public class MainController {
         // normalize the file path
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
-        // save the file on the local file system
+        //check if its a word document
+        if(!(fileName.substring(fileName.lastIndexOf("."))).equals(".docx")){
+            attributes.addFlashAttribute("message", "Only word documents are allowed.");
+            return "redirect:/";
+        }
+
+        // save the file on the local file system and add a unique id at the end so that
+        // users do not overwrite files between themselves
         try {
-            Path path = Paths.get(UPLOAD_DIR + fileName);
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            errorFlag = true;
+            Path path = Paths.get(UPLOAD_DIR + randId+"_"+fileName);
+                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                errorFlag = true;
+                progressBar = 50;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // return success response
-        attributes.addFlashAttribute("errorFlag",errorFlag);
-        attributes.addFlashAttribute("message", "You successfully uploaded " + fileName + '!');
-
-        return "redirect:/";
+        // set the progressbar and errorflag and return success message
+        model.addAttribute("progressBar",progressBar);
+        model.addAttribute("errorFlag",errorFlag);
+        model.addAttribute("message","You successfully uploaded " + fileName + '!');
+        return "page1";
     }
 
 }

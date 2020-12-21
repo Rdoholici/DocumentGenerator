@@ -7,8 +7,138 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script>
+        $('#myModal').on('shown.bs.modal', function () {
+            $('#myInput').trigger('focus')
+        })
+    </script>
 </head>
 <body>
+
+<!--modal begin-->
+
+<div class="container">
+    <!-- Trigger the modal with a button -->
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title">How it works</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p class="lead text-center bg-info btn text-info center-block">Select an existing or a new file.</p>
+                            <div class="row">
+                                <div class="col-xs-6 text-center">
+                                    <p class="btn"><span class="glyphicon glyphicon-arrow-down"></span>
+                                </div>
+                                <div class="col-xs-6 text-center">
+                                    <p class="btn">
+                                        <span class="glyphicon glyphicon-arrow-down"></span></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 text-center">
+                                    <p class="center-block"><span class="btn btn-warning btn-lg">New File</span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="center-block bg-info text-info btn">Edit the New File</p>
+                                    <div class="row">
+                                        <div class="col-xs-12 text-center">
+                                            <p class="btn"><span class="glyphicon glyphicon-arrow-down"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-xs-12 text-center">
+                                            <p><span class="btn btn-success btn-lg">Place the word(s) you want to replace between tags <br/> e.g. &#60;keyword&#62; word &#60;keyword/&#62;</span></p>
+                                            <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                            <p><span class="btn btn-success btn-lg">
+         For the dynamic data tables, make sure <br/> you only complete the table headers within the file.
+       </span></p>
+                                            <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                            <p class="center-block bg-info text-info btn">Upload the New File</p>
+                                            <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6 text-center">
+                                    <p class="center-block"><span class="btn btn-success btn-lg">Existing File</span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+
+                                    <p class="bg-info text-info btn">Choose a predefined type and upload the file.</p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                    <p class="btn center-block"><span class="glyphicon glyphicon-arrow-down"></span></p>
+
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p class="lead text-center bg-info btn text-info center-block">Add the keywords and sources in the application</p>
+                            <div class="row">
+                                <div class="col-xs-12 text-center">
+                                    <p class="btn"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                </div>
+                            </div>
+                            <p class="lead text-center bg-info btn text-info center-block">Choose file table(s) data source.</p>
+                            <div class="row">
+                                <div class="col-xs-6 text-center">
+                                    <p class="btn"><span class="glyphicon glyphicon-arrow-down"></span>
+                                </div>
+                                <div class="col-xs-6 text-center">
+                                    <p class="btn">
+                                        <span class="glyphicon glyphicon-arrow-down"></span></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 text-center">
+                                    <p class="center-block"><span class="btn btn-warning btn-lg">API</span></p>
+
+                                </div>
+                                <div class="col-xs-6 text-center">
+                                    <p class="center-block"><span class="btn btn-success btn-lg">Excel</span></p>
+
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 text-center">
+                                    <p class="btn"><span class="glyphicon glyphicon-arrow-down"></span></p>
+                                </div>
+                            </div>
+                            <p class="lead text-center bg-info btn text-info center-block">Submit input and download file.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!--modal end-->
 
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
@@ -21,8 +151,8 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-                    0%
+                <div th:text="${progressBar}" class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                     aria-valuemax="100" style="width:10%" th:style="|width:${progressBar}%|">
                 </div>
             </div>
         </br>
@@ -37,8 +167,12 @@
                     <tr>
                         <th>#</th>
                         <th>Description</th>
-                        <th>Action</th>
-                        <th>Submit</th>
+                        <th>Source</th>
+                        <th>Action
+                            <a href="#">
+                            <span class="glyphicon glyphicon-question-sign" data-toggle="modal" data-target="#myModal"></span>
+                        </a>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -54,17 +188,26 @@
                                 <option>Upload File</option>
                             </select>
                         </div></td>
-                        <td><button type="submit" class="btn btn-primary">Upload</button></td>
+                        <td>
+                            <button type="submit" class="btn btn-info btn-md">
+                                <span class="glyphicon glyphicon-upload"></span> Ok
+                            </button>
+                        </td>
                         </form>
                     </tr>
                     <tr>
-                        <form method="post" th:action="@{/uploadNewTemplate}" enctype="multipart/form-data">
+                        <form method="post" th:action="@{/page1}" enctype="multipart/form-data">
                         <td>2</td>
                         <td>Upload a new template</td>
                         <td><div class="form-group">
-                            <input type="file" class="form-control-file" id="file" name="file" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            <input type="file" class="form-control-file" id="file" name="file"
+                                   accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         </div></td>
-                        <td> <button type="submit" class="btn btn-primary">Upload</button> </td>
+                        <td>
+                            <button type="submit" class="btn btn-info btn-md">
+                                <span class="glyphicon glyphicon-upload"></span> Upload
+                            </button>
+                        </td>
                         </form>
                     </tr>
                     </tbody>
