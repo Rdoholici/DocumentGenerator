@@ -16,9 +16,8 @@ public class DocumentParser {
         File docxDoc = new File("ter_template.docx");
         FileInputStream fis = new FileInputStream(docxDoc.getAbsolutePath());
         XWPFDocument document = new XWPFDocument(fis);
-        System.out.println(
-                getKeyWords(document, "<change>"));
-                getTableHeaders(document).forEach(t -> System.out.println(t));
+        System.out.println(getKeyWords(document, "<change>"));
+        getTableHeaders(document).forEach(t -> System.out.println(t));
     }
 
     public static Set<String> getKeyWords(XWPFDocument document, String keyword) {
