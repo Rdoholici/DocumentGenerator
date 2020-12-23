@@ -38,11 +38,11 @@
 
                 <!-- keyword iterator -->
                 <div class="form-group" th:each = "keyword : ${keywords}">
-                    <label for="formGroupExampleInput" th:text="${keyword}"></label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" th:placeholder="${keyword}">
+                    <label for="formGroupExampleInput" th:text="'Keyword '+${keyword}">Keyword</label>
+                    <input type="text" class="form-control" id="formGroupExampleInput" th:placeholder="'Please insert a value for '+${keyword}">
                 </div>
 
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Table Header</th>
