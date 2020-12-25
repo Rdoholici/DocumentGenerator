@@ -34,12 +34,12 @@
 
             </div>
 
-            <form method="post">
+            <form action = "#" th:action="@{/result}" method="post" th:object="${userKeyword}" enctype="multipart/form-data">
 
                 <!-- keyword iterator -->
                 <div class="form-group" th:each = "keyword : ${keywords}">
                     <label for="formGroupExampleInput" th:text="'Keyword '+${keyword}">Keyword</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" th:placeholder="'Please insert a value for '+${keyword}">
+                    <input type="text" class="form-control" id="formGroupExampleInput" th:field = "*{name}" th:placeholder="'Please insert a value for '+${keyword}">
                 </div>
 
                 <table class="table">
@@ -54,46 +54,21 @@
                     <tbody>
                         <tr th:each = "table : ${tableHeaders}">
                             <td th:text = "${table}"></td>
-                            <td> <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"></td>
-                            <td>  <input type="file" class="form-control-file" id="file1" name="file1"
-                                         accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></td>
+                            <td>
+                                <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"></td>
+                            <td>
+                                <input type="file" class="form-control-file" id="file1" name="file1"
+                                         accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                        </td>
                         </tr>
                     </tbody>
                 </table>
 
-<!--            <table class="table">-->
-<!--                <thead>-->
-<!--                <tr>-->
-<!--                    <th>#</th>-->
-<!--                    <th>Table Title</th>-->
-<!--                    <th>Table Header</th>-->
-<!--                    <th>API</th>-->
-<!--                    <th>EXCEL</th>-->
-<!--                </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                <tr>-->
-<!--                        <td>1</td>-->
-<!--                        <td>Table 1</td>-->
-<!--                        <td> Issue Key, Description, Priority, Severity, Status</td>-->
-<!--                        <td> <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"></td>-->
-<!--                        <td>  <input type="file" class="form-control-file" id="file1" name="file1"-->
-<!--                                     accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></td>-->
-
-<!--                </tr>-->
-<!--                <tr>-->
-
-<!--                        <td>2</td>-->
-<!--                        <td>Table 2</td>-->
-<!--                        <td> Issue Key, Description, Priority, Severity, Status</td>-->
-<!--                    <td> <input type="text" class="form-control" id="formGroupExampleInput4" placeholder="Api key"></td>-->
-<!--                        <td>  <input type="file" class="form-control-file" id="file2" name="file2"-->
-<!--                                     accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></td>-->
-<!--                </tr>-->
-<!--                </tbody>-->
-<!--            </table>-->
+                <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-            <button type="submit" class="btn btn-primary">Submit</button>
+
+
+
         </div>
     </div>
 </div>

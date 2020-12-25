@@ -177,20 +177,19 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <form method="post" th:action="@{/uploadExistingTemplate}">
-                        <td>1</td>
-                        <td>Choose a template from our repo</td>
+
+                        <form action="#" th:action="@{/existingTemplate}" method="post" th:object="${documentType}">
+                       <td>1</td>
+                      <td>Choose a template from our repo</td>
                         <td><div class="form-group">
-                            <select class="form-control" id="exampleFormControlSelect1">
-                                <option>TER</option>
-                                <option>Daily Status</option>
-                                <option>Retrospective Status</option>
-                                <option>Upload File</option>
+                          <select class="form-control" id="sel1" th:field="*{name}">
+                                <option th:each="p : ${listType}" th:value="${p}" th:text="${p}" />
                             </select>
-                        </div></td>
+                        </div>
+                        </td>
                         <td>
                             <button type="submit" class="btn btn-info btn-md">
-                                <span class="glyphicon glyphicon-upload"></span> Ok
+                                <span class="glyphicon glyphicon-upload"></span> Select
                             </button>
                         </td>
                         </form>
