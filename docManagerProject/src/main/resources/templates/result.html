@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document Generator</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script>
+        $('#myModal').on('shown.bs.modal', function () {
+            $('#myInput').trigger('focus')
+        })
+    </script>
+</head>
+<body>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">Document Generator</h1>
+        <p class="lead">With this application, you can automatically generate recurrent documents.</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="progress">
+                <div th:text="${progressBar}" class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                     aria-valuemax="100" style="width:10%" th:style="|width:${progressBar}%|">
+                </div>
+            </div>
+            </br>
+            <br/>
+            <div th:text="${message}" th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
+
+            </div>
+
+
+<!--            <p th:each="i: ${userKeyword}">-->
+<!--                <span th:text="${i.name}"></span><br/>-->
+<!--            </p>-->
+            <div action="#" th:action="@{/result}" method="post" th:object="${userKeyword}">
+            <p th:field="*{name}">
+                <p th:each="p : ${userKeyword}" th:value="${p}" th:text="${p}" /></p>
+            </div>
+            
+
+
+
+
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
