@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="All Test Suite"><test verbose="2" preserve-order="true" name="D:/login_feature">
+    <classes><class name="com.example.login_module.LoginModuleApplicationTests">
+        <methods><include name="contextLoads"/></methods></class></classes></test></suite>
