@@ -51,6 +51,7 @@ public class MainController {
         return "redirect:/";
 
     }
+
     //CommonsMultipartResolver
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public String handleError2(MaxUploadSizeExceededException e, RedirectAttributes redirectAttributes) {
@@ -64,10 +65,10 @@ public class MainController {
     @GetMapping("/")
     public String homepage(Model model) {
 
-        DocumentType documentType =new DocumentType();
-        model.addAttribute("documentType",documentType);
+        DocumentType documentType = new DocumentType();
+        model.addAttribute("documentType", documentType);
 
-        List<String> listType = Arrays.asList("TER - release","TER - Hot Fix");
+        List<String> listType = Arrays.asList("TER - release", "TER - Hot Fix");
         model.addAttribute("listType", listType);
         return "index";
     }
@@ -76,43 +77,39 @@ public class MainController {
     @PostMapping("/page1") //for new ter from user
     public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes, Model model) throws IOException {
 
-        // check if file is empty
-        if (file.isEmpty()) {
-            attributes.addFlashAttribute("message", "Please select a file to upload.");
-            return "redirect:/";
-        }
 
         // normalize the file path
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
-        //check if its a word document
-        if(!(fileName.substring(fileName.lastIndexOf("."))).equals(".docx")){
-            attributes.addFlashAttribute("message", "Only word documents are allowed.");
+        //check file to exist and be docx type
+        if (!FileController.verifyFile(file, ".docx")) {
+            attributes.addFlashAttribute("message", "Please select a valid docx file to upload.");
             return "redirect:/";
         }
 
+        FileController.saveFile(file, UPLOAD_DIR);
         // save the file on the local file system and add a unique id at the end so that
         // users do not overwrite files between themselves
-        try {
-            path = Paths.get(UPLOAD_DIR + fileName);
-                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-                errorFlag = true;
-                progressBar = 50;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            path = Paths.get(UPLOAD_DIR + fileName);
+//            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+//            errorFlag = true;
+//            progressBar = 50;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         File docxDoc = new File(path.toString());
         FileInputStream fis = new FileInputStream(docxDoc.getAbsolutePath());
         XWPFDocument document = new XWPFDocument(fis);
 
         UserKeyword userKeyword = new UserKeyword();
-        model.addAttribute("userKeyword",userKeyword);
+        model.addAttribute("userKeyword", userKeyword);
 
         // set the progressbar and errorflag and return success message
-        model.addAttribute("progressBar",progressBar);
-        model.addAttribute("errorFlag",errorFlag);
-        model.addAttribute("message","You successfully uploaded " + fileName + '!');
+        model.addAttribute("progressBar", progressBar);
+        model.addAttribute("errorFlag", errorFlag);
+        model.addAttribute("message", "You successfully uploaded " + fileName + '!');
         model.addAttribute("keywords", DocumentParser.getKeyWords(document, "<change>"));
         model.addAttribute("tableHeaders", DocumentParser.getTableHeaders(document));
         return "page1";
@@ -121,32 +118,28 @@ public class MainController {
     @GetMapping("/result")
     public String showResult(Model model) {
         UserKeyword userKeyword = new UserKeyword();
-        model.addAttribute("userKeyword",userKeyword);
+        model.addAttribute("userKeyword", userKeyword);
         return "result";
-}
+    }
 
 
     @PostMapping("/result")
-    public String submitForm(@ModelAttribute("userKeyword") UserKeyword userKeyword, Model model) {
+    public String submitForm(@ModelAttribute("userKeyword") UserKeyword userKeyword, MultipartFile[] files, Model model) {
         progressBar = 100;
-        model.addAttribute("progressBar",progressBar);
-        System.out.println(userKeyword);
+        model.addAttribute("progressBar", progressBar);
         return "result";
     }
 
     @PostMapping("/existingTemplate")
-    public String submitForm(@ModelAttribute("documentType") DocumentType documentType,Model model) throws IOException {
-
-
+    public String submitForm(@ModelAttribute("documentType") DocumentType documentType, Model model) throws IOException {
 
         progressBar = 50;
-        model.addAttribute("progressBar",progressBar);
-        if(documentType.getName().equals("TER - release")) {
+        model.addAttribute("progressBar", progressBar);
+        if (documentType.getName().equals("TER - release")) {
             templPath = Paths.get(TEMPL_UPLOAD_DIR + "\\ter_release.docx");
             System.out.println(templPath);
             System.out.println("OK");
-        }
-        else if(documentType.getName().equals("TER - Hot Fix")) {
+        } else if (documentType.getName().equals("TER - Hot Fix")) {
             templPath = Paths.get(TEMPL_UPLOAD_DIR + "\\ter_hotfix.docx");
             System.out.println(templPath);
             System.out.println("OK");
@@ -161,11 +154,11 @@ public class MainController {
 
         UserKeyword userKeyword = new UserKeyword();
 
-        model.addAttribute("userKeyword",userKeyword);
-        model.addAttribute("errorFlag",errorFlag);
+        model.addAttribute("userKeyword", userKeyword);
+        model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", DocumentParser.getKeyWords(document, "<change>"));
         model.addAttribute("tableHeaders", DocumentParser.getTableHeaders(document));
-        model.addAttribute("message","You successfully selected " + fileName + " template!");
+        model.addAttribute("message", "You successfully selected " + fileName + " template!");
 
 // testare ca documentul este bine selectat
 //        List<XWPFParagraph> data = document.getParagraphs();
