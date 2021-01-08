@@ -1,6 +1,9 @@
 package com.documentManager.docManager.controllers;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -61,7 +64,62 @@ public class MainController {
 
     }
 
-    @GetMapping("/")
+////////////////////////////////////////////////
+
+
+    @Autowired
+    private UserRepository userRepo;
+
+    @GetMapping("")
+    public String viewHomePage() {
+        return "login";
+    }
+
+    @GetMapping("/login")
+    public String login(){
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("user", new User());
+
+        return "signup_form";
+    }
+
+    @PostMapping("/process_register")
+    public String processRegister(User user, Model model) {
+        String errorMessage = "";
+        String result = "signup_form";
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+
+        try {
+            userRepo.save(user);
+            result = "register_success";
+        }
+        catch (DataIntegrityViolationException e) {
+            errorMessage =("user already exists");
+        }
+        model.addAttribute("errorMessage",errorMessage);
+        return result;
+
+    }
+
+//    @GetMapping("/users")
+//    public String listUsers(Model model) {
+//        List<User> listUsers = userRepo.findAll();
+//        model.addAttribute("listUsers", listUsers);
+//
+//        return "users";
+//    }
+
+
+///////////////////////////////////////////////
+
+    @GetMapping("/templates_page")
     public String homepage(Model model) {
 
         DocumentType documentType =new DocumentType();
@@ -69,7 +127,7 @@ public class MainController {
 
         List<String> listType = Arrays.asList("TER - release","TER - Hot Fix");
         model.addAttribute("listType", listType);
-        return "index";
+        return "templates_page";
     }
 
 
@@ -79,7 +137,7 @@ public class MainController {
         // check if file is empty
         if (file.isEmpty()) {
             attributes.addFlashAttribute("message", "Please select a file to upload.");
-            return "redirect:/";
+            return "redirect:/templates_page";
         }
 
         // normalize the file path
@@ -88,7 +146,7 @@ public class MainController {
         //check if its a word document
         if(!(fileName.substring(fileName.lastIndexOf("."))).equals(".docx")){
             attributes.addFlashAttribute("message", "Only word documents are allowed.");
-            return "redirect:/";
+            return "redirect:/templates_page";
         }
 
         // save the file on the local file system and add a unique id at the end so that
