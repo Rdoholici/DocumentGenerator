@@ -4,9 +4,10 @@
     <title>Document Generator</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script>
         $('#myModal').on('shown.bs.modal', function () {
             $('#myInput').trigger('focus')
@@ -14,12 +15,17 @@
     </script>
 </head>
 <body>
-<form th:action="@{/logout}" method="post">
-    <p>
-        Welcome <b>[[${#request.userPrincipal.principal.fullName}]]</b>
-    </p>
-    <input type="submit" value="Sign Out" />
-</form>
+
+<!-- navigation bar -->
+<div th:replace="fragments/topnav :: navbarFragment">
+</div>
+
+<!--quit confirmation popup begin -->
+<div th:replace="fragments/topnav :: confirmation">
+</div>
+<!--quit confirmation popup end -->
+<!--navigation bar end -->
+
 <!--modal begin-->
 
 <div class="container">
@@ -145,39 +151,28 @@
 
 <!--modal end-->
 
-<div class="jumbotron jumbotron-fluid">
-    <div class="container">
-        <h1 class="display-4">Document Generator</h1>
-        <p class="lead">With this application, you can automatically generate recurrent documents.</p>
-    </div>
+<!--jumbotron begin-->
+
+<div th:replace="fragments/jumbotron :: jumbotron">
 </div>
+
+<!--jumbotron end-->
 
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <div class="progress">
-                <div th:text="${progressBar}" class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0"
-                     aria-valuemax="100" style="width:10%" th:style="|width:${progressBar}%|">
-                </div>
-            </div>
-        </br>
-            <br/>
             <div th:text="${message}" th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
 
             </div>
 
-            <div class="table-responsive">
-                <table class="table">
+            <div class="table-responsive-sm">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th>#</th>
                         <th>Description</th>
                         <th>Source</th>
-                        <th>Action
-                            <a href="#">
-                            <span class="glyphicon glyphicon-question-sign" data-toggle="modal" data-target="#myModal"></span>
-                        </a>
-                        </th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -193,7 +188,7 @@
                         </div>
                         </td>
                         <td>
-                            <button type="submit" class="btn btn-info btn-md">
+                            <button type="submit" class="btn btn-info btn-md btn-block">
                                 <span class="glyphicon glyphicon-upload"></span> Select
                             </button>
                         </td>
@@ -208,7 +203,7 @@
                                    accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         </div></td>
                         <td>
-                            <button type="submit" class="btn btn-info btn-md">
+                            <button type="submit" class="btn btn-info btn-md btn-block">
                                 <span class="glyphicon glyphicon-upload"></span> Upload
                             </button>
                         </td>
@@ -220,7 +215,13 @@
 
         </div>
     </div>
+<!--footer begin-->
+    <div th:replace="fragments/footer :: footer">
+    </div>
+
+<!--footer end-->
 </div>
+
 
 </body>
 </html>
