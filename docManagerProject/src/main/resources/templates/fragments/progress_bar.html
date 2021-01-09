@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<!--*-->
+<!--*-->
+<!--*-->
+<!--this also contain the error messages which are displayed when the user provides bad input!!!!!!! -->
+<!--*-->
+<!--*-->
+<!--*-->
+
+<div th:fragment="progress_bar">
+<div class="progress">
+    <div th:text="${progressBar}" class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0"
+         aria-valuemax="100" style="width:10%" th:style="|width:${progressBar}%|">
+    </div>
+</div>
+<br/>
+<div th:text="${message}" th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
+
+</div>
+</div>
+
+</body>
+</html>
