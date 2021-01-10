@@ -1,6 +1,7 @@
-package com.documentManager.docManager.controllers;
+package com.documentManager.docManager.models;
 
-public class DocumentType {
+public class UserKeyword {
+
     private String name;
 
     public String getName() {
@@ -13,8 +14,6 @@ public class DocumentType {
 
     @Override
     public String toString() {
-        return "DocumentType{" +
-                "name='" + name + '\'' +
-                '}';
+        return name;
     }
 }

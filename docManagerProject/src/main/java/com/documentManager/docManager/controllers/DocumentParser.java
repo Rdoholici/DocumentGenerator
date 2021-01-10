@@ -1,6 +1,10 @@
 package com.documentManager.docManager.controllers;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,14 +16,6 @@ import java.util.Set;
 
 public class DocumentParser {
 
-    public static void main(String[] args) throws IOException {
-        File docxDoc = new File("ter_template.docx");
-        FileInputStream fis = new FileInputStream(docxDoc.getAbsolutePath());
-        XWPFDocument document = new XWPFDocument(fis);
-        System.out.println(getKeyWords(document, "<change>"));
-        getTableHeaders(document).forEach(t -> System.out.println(t));
-    }
-
     public static Set<String> getKeyWords(XWPFDocument document, String keyword) {
         Set<String> toReturn = new HashSet<>();
         document.getParagraphs().stream().filter(p -> p.getText().contains(keyword)).forEach(p -> toReturn.add(p.getText().split("<change>")[1]));
@@ -28,7 +24,13 @@ public class DocumentParser {
 
     public static List<String> getTableHeaders(XWPFDocument document) {
         List<String> toReturn = new ArrayList<>();
-        document.getTables().forEach(table -> toReturn.add(table.getText().replace("\t", " - ").replace("\n", "")));
+        for (XWPFTable table : document.getTables()) {
+            String tableText = "";
+                for (XWPFTableCell cell : table.getRow(0).getTableCells()) {
+                    tableText += cell.getText() + " ";
+                }
+            toReturn.add(tableText);
+        }
         return toReturn;
     }
 }

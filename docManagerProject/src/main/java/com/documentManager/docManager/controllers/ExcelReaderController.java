@@ -42,4 +42,11 @@ public class ExcelReaderController {
         }
         return toReturn;
     }
+
+    public static void fillTableWithData(String excelFilePath, String targetDocumentFilePath) throws IOException, InvalidFormatException {
+        Workbook workbook = WorkbookFactory.create(new File(excelFilePath));
+        Sheet sheet = workbook.getSheetAt(0);
+        DataFormatter dataFormatter = new DataFormatter();
+
+    }
 }

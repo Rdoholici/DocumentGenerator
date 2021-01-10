@@ -39,7 +39,9 @@
                 <!-- keyword iterator -->
                 <div class="form-group" th:each = "keyword : ${keywords}">
                     <label for="formGroupExampleInput" th:text="'Keyword '+${keyword}">Keyword</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" th:field = "*{name}" th:placeholder="'Please insert a value for '+${keyword}">
+                    <input type="text" class="form-control" id="formGroupExampleInput"
+
+                           th:placeholder="'Please insert a value for '+${keyword}">
                 </div>
 
                 <table class="table">
@@ -57,8 +59,8 @@
                             <td>
                                 <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"></td>
                             <td>
-                                <input type="file" class="form-control-file" id="file1" name="file1"
-                                         accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                <input type="file" class="form-control-file" id="files" name="files"
+                                         accept=".xls,.xlsx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         </td>
                         </tr>
                     </tbody>
@@ -66,9 +68,6 @@
 
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-
-
-
         </div>
     </div>
 </div>
