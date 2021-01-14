@@ -1,5 +1,11 @@
 package com.documentManager.docManager.controllers;
 
+import com.documentManager.docManager.models.DocumentTable;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.File;
@@ -7,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DocumentGeneratorController {
@@ -33,9 +40,9 @@ public class DocumentGeneratorController {
         document = new XWPFDocument(fis);
     }
 
-    public static void replaceTextInParagraph(String textToReplace, String newValue) {
+    public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
         List<XWPFParagraph> para = document.getParagraphs().stream().filter(p -> p.getText().contains(textToReplace)).collect(Collectors.toList());
-        for ( XWPFParagraph paragraph : para) {
+        for (XWPFParagraph paragraph : para) {
             List<XWPFRun> runs = paragraph.getRuns();
             if (runs != null) {
                 for (XWPFRun run : runs) {
@@ -53,5 +60,14 @@ public class DocumentGeneratorController {
         return document.getTables().stream().filter(
                 table -> table.getText().replace("\t", " - ").replace("\n", "").equals(header))
                 .findFirst().get();
+    }
+
+    public static void addExcelTableToDocumentTable(DocumentTable documentTable) throws IOException, InvalidFormatException {
+        Workbook workbook = WorkbookFactory.create(new File(documentTable.getFilePath()));
+        Sheet sheet = workbook.getSheetAt(0);
+        DataFormatter dataFormatter = new DataFormatter();
+
+        Optional<XWPFTable> table = document.getTables().stream().filter(xwpfTable -> xwpfTable.getText().equals(documentTable.getName())).findFirst();
+//        sheet.get
     }
 }

@@ -86,10 +86,10 @@ public class TemplateController {
 
         DocumentGeneratorController.addRowToTable("Function/modules - Total tcs - Tcs passed - Tcs not completed - Tcs failed - Tcs blocked", almCells);
 
-        DocumentGeneratorController.replaceTextInParagraph("RELEASE_NO", confluenceService.getConfluenceReleaseInfo(id).getReleaseNumber());
-        DocumentGeneratorController.replaceTextInParagraph("TITLE", confluenceService.getConfluenceReleaseInfo(id).getAppName());
-        DocumentGeneratorController.replaceTextInParagraph("RELEASE_DATE", confluenceService.getConfluenceReleaseInfo(id).getReleaseDate());
-        DocumentGeneratorController.replaceTextInParagraph("REGION", confluenceService.getConfluenceReleaseInfo(id).getRegion());
+        DocumentGeneratorController.replaceTextInAllParagraphs("RELEASE_NO", confluenceService.getConfluenceReleaseInfo(id).getReleaseNumber());
+        DocumentGeneratorController.replaceTextInAllParagraphs("TITLE", confluenceService.getConfluenceReleaseInfo(id).getAppName());
+        DocumentGeneratorController.replaceTextInAllParagraphs("RELEASE_DATE", confluenceService.getConfluenceReleaseInfo(id).getReleaseDate());
+        DocumentGeneratorController.replaceTextInAllParagraphs("REGION", confluenceService.getConfluenceReleaseInfo(id).getRegion());
 
         DocumentGeneratorController.saveDocument("modified.docx");
     }

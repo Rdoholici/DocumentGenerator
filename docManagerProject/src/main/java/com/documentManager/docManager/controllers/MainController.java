@@ -1,8 +1,9 @@
 package com.documentManager.docManager.controllers;
 
 import com.documentManager.docManager.models.Document;
+import com.documentManager.docManager.models.DocumentTable;
 import com.documentManager.docManager.models.DocumentType;
-import com.documentManager.docManager.models.UserKeyword;
+import com.documentManager.docManager.models.UserInput;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Controller;
@@ -20,9 +21,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+//import com.documentManager.docManager.models.UserKeyword;
 
 @Controller
 @ControllerAdvice
@@ -78,28 +80,24 @@ public class MainController {
             attributes.addFlashAttribute("message", "Please select a valid docx file to upload.");
             return "redirect:/";
         }
-
+//TODO get user input other than file
         // save the file on the local file system
         //TODO - save file to disk if not existent, or save to database?
         String filePath = FileController.saveFile(file, UPLOAD_DIR);
 
         //set name
         document.setName(file.getName());
+
         // normalize the file path
-        document.setPath(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
+        document.setPath(UPLOAD_DIR + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
 
         XWPFDocument xwpfDocument = FileController.convertWordToXWPFDocument(filePath);
-
-        //attach keywords
-        document.setUserKeyword(new UserKeyword());
-        model.addAttribute("userKeyword", document.getKeywords());
 
         //get keywords and store them
         document.setKeywords(DocumentParser.getKeyWords(xwpfDocument, "<change>")); //TODO get rid of hardcoded
 
         //get table headers and store them
         document.setTables(DocumentParser.getTableHeaders(xwpfDocument));
-
 
         // set the progressbar and errorflag and return success message
         progressBar = 50;
@@ -108,26 +106,73 @@ public class MainController {
         model.addAttribute("message", "You successfully uploaded " + document.getName() + '!');
         model.addAttribute("keywords", document.getKeywords());
         model.addAttribute("tableHeaders", document.getTables());
+        model.addAttribute("userInput", new UserInput());
         return "page1";
     }
 
     @GetMapping("/result")
     public String showResult(Model model) {
-        UserKeyword userKeyword = new UserKeyword();
-        model.addAttribute("userKeyword", userKeyword);
+//        UserKeyword userKeyword = new UserKeyword();
+//        model.addAttribute("userKeyword", userKeyword);
         return "result";
     }
 
     @PostMapping("/result")
-    public String submitForm(@ModelAttribute("userKeyword") UserKeyword userKeyword, MultipartFile[] files, Model model) throws IOException, InvalidFormatException {
+    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model) throws IOException, InvalidFormatException {
         progressBar = 100;
         model.addAttribute("progressBar", progressBar);
 
-        //create hashmap with table header and file path
-        HashMap<String, String> documentTables = new HashMap<>();
-        for (int i = 0; i < files.length; i++) {
+        //iterate keywords and populate document object
+        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
+        for (int i = 0; i < keywordsCommaSeparated.length; i++) {
+            document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
+        }
+
+        //create object for each table - either api or excel file fill
+
+        //avoid the case where an empty array is returned
+        if (userInput.getApisCommaSeparated().split(",").length == 0) {
+            userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
+        }
+
+        String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+        for (int i = 0; i < document.getTables().size(); i++) {
+            //TODO make excel object with name, api true/fasle , file
+            String filepath = null;
+
+            //case table is ignored
+            if (!FileController.verifyFile(files[i], ".xls") && apisCommaSeparated[i].equals(" ")) {
+                continue;
+            }
+
+            // case excel is valid, ignore api
             if (FileController.verifyFile(files[i], ".xls")) {
-                documentTables.put(document.getTables().get(i), FileController.saveFile(files[i], TABLE_UPLOAD_DIR));
+                filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
+                //case excel is invalid, use api
+            } else {
+                //use api
+            }
+
+            DocumentTable dt = new DocumentTable(document.getTables().get(i), apisCommaSeparated[i], filepath);
+            document.addDT(dt);
+        }
+
+        //create document
+        DocumentGeneratorController.setDocumentTemplate(document.getPath());
+
+        //iterate all keywords and replace them
+        for (String key : document.getCompletedKeywords().keySet()) {
+            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
+        }
+
+        //iterate all document tables and add them
+        for (DocumentTable documentTable : document.getDocumentTables()) {
+            if (!documentTable.getFilePath().equals(null)) {
+                DocumentGeneratorController.addExcelTableToDocumentTable(documentTable);
+            } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {
+                //use api
+            } else {
+//                do nothing
             }
         }
         return "result";
@@ -155,9 +200,9 @@ public class MainController {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(docxDoc.getName()));
         errorFlag = true;
 
-        UserKeyword userKeyword = new UserKeyword();
+//        UserKeyword userKeyword = new UserKeyword();
 
-        model.addAttribute("userKeyword", userKeyword);
+//        model.addAttribute("userKeyword", userKeyword);
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", DocumentParser.getKeyWords(document, "<change>"));
         model.addAttribute("tableHeaders", DocumentParser.getTableHeaders(document));
@@ -174,4 +219,5 @@ public class MainController {
         return "extempresult";
     }
 }
+
 

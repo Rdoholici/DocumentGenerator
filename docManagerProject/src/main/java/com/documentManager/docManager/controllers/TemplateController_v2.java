@@ -3,13 +3,9 @@ package com.documentManager.docManager.controllers;
 import com.documentManager.docManager.models.JiraTicket;
 import com.documentManager.docManager.services.JiraService;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.print.Doc;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -37,12 +33,12 @@ public class TemplateController_v2 {
     public static void replaceKeywordsInTemplate(HashMap<String,String> newValue) throws IOException, InvalidFormatException { //newValue ar fi valoarea introdusa de la tastatura
 
         for ( String keyword : newValue.keySet()) {
-            DocumentGeneratorController.replaceTextInParagraph(keyword, newValue.get(keyword));
+            DocumentGeneratorController.replaceTextInAllParagraphs(keyword, newValue.get(keyword));
         }
 
     }
     public static void cleanUpTag() {
-        DocumentGeneratorController.replaceTextInParagraph("<change>", "");
+        DocumentGeneratorController.replaceTextInAllParagraphs("<change>", "");
 
     }
 

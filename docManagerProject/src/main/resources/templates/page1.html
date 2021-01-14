@@ -34,13 +34,13 @@
 
             </div>
 
-            <form action = "#" th:action="@{/result}" method="post" th:object="${userKeyword}" enctype="multipart/form-data">
+            <form action = "#" th:action="@{/result}" method="post" th:object="${userInput}" enctype="multipart/form-data">
 
                 <!-- keyword iterator -->
                 <div class="form-group" th:each = "keyword : ${keywords}">
                     <label for="formGroupExampleInput" th:text="'Keyword '+${keyword}">Keyword</label>
                     <input type="text" class="form-control" id="formGroupExampleInput"
-
+                           th:field = "*{keywordsCommaSeparated}"
                            th:placeholder="'Please insert a value for '+${keyword}">
                 </div>
 
@@ -57,7 +57,7 @@
                         <tr th:each = "table : ${tableHeaders}">
                             <td th:text = "${table}"></td>
                             <td>
-                                <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"></td>
+                                <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key" th:field = "*{apisCommaSeparated}"></td>
                             <td>
                                 <input type="file" class="form-control-file" id="files" name="files"
                                          accept=".xls,.xlsx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
