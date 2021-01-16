@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,6 +37,7 @@ public class MainController {
     private String TEMPL_UPLOAD_DIR = "./uploads/templates";
     private String TABLE_UPLOAD_DIR = "./uploads/tables/";
     private String USER_UPLOAD_DIR = "./uploads/userUploads/";
+    private String RESULT = "./uploads/results/";
 
     private Path path;
     private Path templPath;
@@ -165,13 +168,14 @@ public class MainController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {
+            } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {//TODO
                 //use api
             } else {
-//                do nothing
+                //do nothing
             }
         }
-        DocumentGeneratorController.saveDocument("modificat.docx");
+
+        DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
         //make documen null
         document.clear();
@@ -179,7 +183,33 @@ public class MainController {
         //delete files
         FileController.deleteTempFiles();
 
+        //serve file to user
+        File folder = new File(RESULT); // for showing the user the list of templates we have
+        File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
+
+        model.addAttribute("files", listOfFiles);
         return "result";
+    }
+
+    @RequestMapping("/file/{tempfileName}")
+    @ResponseBody
+    public void show(@PathVariable("tempfileName") String tempFileName, HttpServletResponse response) throws IOException {
+        if (tempFileName.contains(".docx")) response.setContentType("application/msword");
+        response.setHeader("Content-Disposition", "attachment; filename=" + tempFileName);
+        response.setHeader("Content-Transfer-Encoding", "binary");
+        try {
+            BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+            FileInputStream fis = new FileInputStream((RESULT + tempFileName));
+            int len;
+            byte[] buf = new byte[1024];
+            while ((len = fis.read(buf)) > 0) {
+                bos.write(buf, 0, len);
+            }
+            bos.close();
+            response.flushBuffer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @PostMapping("/existingTemplate")
@@ -204,22 +234,11 @@ public class MainController {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(docxDoc.getName()));
         errorFlag = true;
 
-//        UserKeyword userKeyword = new UserKeyword();
-
-//        model.addAttribute("userKeyword", userKeyword);
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", DocumentParser.getKeyWords(document, "<change>"));
         model.addAttribute("tableHeaders", DocumentParser.getTableHeaders(document));
         model.addAttribute("message", "You successfully selected " + fileName + " template!");
 
-// testare ca documentul este bine selectat
-//        List<XWPFParagraph> data = document.getParagraphs();
-//
-//        for(XWPFParagraph p : data) {
-//            System.out.print(p.getText());
-//        }
-//
-//        System.out.println(docxDoc.length());
         return "extempresult";
     }
 }

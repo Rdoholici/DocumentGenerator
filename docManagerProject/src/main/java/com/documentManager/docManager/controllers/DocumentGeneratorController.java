@@ -79,7 +79,7 @@ public class DocumentGeneratorController {
         //iterate document tables and find the tables with the same header
         List<XWPFTable> possibleTables = findTablesByHeader(documentTable.getName());
 
-        addExcelRowsToTable(possibleTables.get(0), workbook);//TODO which possible table to use?
+        addExcelRowsToTable(possibleTables.get(0), workbook); //TODO which possible table to use?
         workbook.close();
     }
 }

@@ -52,6 +52,27 @@
     </div>
 </div>
 
+<div class="table-responsive-sm">
+    <table class="table table-hover borderless">
+        <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Size</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="file: ${files}">
+            <td>
+                <a th:href="@{'/file/'+${file.getName()}}"><span th:text="${file.getName()}"/></a>
+            </td>
+            <td>
+                <span th:text="${file.length()/1024}"/>KB
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
 
 </body>
 </html>

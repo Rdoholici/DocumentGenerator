@@ -23,6 +23,7 @@ public class FileController {
     private static String TEMPL_UPLOAD_DIR = "./uploads/templates";
     private static String TABLE_UPLOAD_DIR = "./uploads/tables/";
     private static String USER_UPLOAD_DIR = "./uploads/userUploads/";
+    private static String RESULT = "./uploads/result";
 
     public static String saveFile(MultipartFile file, String pathToSave) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
