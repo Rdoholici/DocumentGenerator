@@ -1,12 +1,10 @@
 package com.documentManager.docManager.controllers;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +18,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 public class FileController {
+    //file location
+    private static final String UPLOAD_DIR = "./uploads/";
+    private static String TEMPL_UPLOAD_DIR = "./uploads/templates";
+    private static String TABLE_UPLOAD_DIR = "./uploads/tables/";
+    private static String USER_UPLOAD_DIR = "./uploads/userUploads/";
 
     public static String saveFile(MultipartFile file, String pathToSave) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
@@ -42,7 +45,8 @@ public class FileController {
         //try - verify extension is as expected / catch - the file has no extension
         try {
             return fileName.substring(fileName.lastIndexOf(".")).contains(expectedExtension);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return false;
     }
 
@@ -55,5 +59,16 @@ public class FileController {
         File docxDoc = new File(filePath);
         FileInputStream fis = new FileInputStream(docxDoc.getAbsolutePath());
         return new XWPFDocument(fis);
+    }
+
+    public static void deleteTempFiles() {
+        File excels = new File(TABLE_UPLOAD_DIR);
+        for (File file : excels.listFiles()) {
+            file.delete();
+        }
+        File userUploads = new File(USER_UPLOAD_DIR);
+        for (File file : userUploads.listFiles()) {
+            file.delete();
+        }
     }
 }

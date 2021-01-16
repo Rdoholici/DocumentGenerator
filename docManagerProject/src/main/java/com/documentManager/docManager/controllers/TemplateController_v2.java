@@ -65,7 +65,7 @@ public class TemplateController_v2 {
             rowCells.add(jiraTicket.getPriority());
             rowCells.add(jiraTicket.getSeverity());
             rowCells.add(jiraTicket.getStatus());
-            DocumentGeneratorController.addRowToTable(tableHeader, rowCells);
+//            DocumentGeneratorController.addRowToTable(tableHeader, rowCells);
         }
     }
 

@@ -34,6 +34,7 @@ public class MainController {
     private final String UPLOAD_DIR = "./uploads/";
     private String TEMPL_UPLOAD_DIR = "./uploads/templates";
     private String TABLE_UPLOAD_DIR = "./uploads/tables/";
+    private String USER_UPLOAD_DIR = "./uploads/userUploads/";
 
     private Path path;
     private Path templPath;
@@ -83,13 +84,13 @@ public class MainController {
 //TODO get user input other than file
         // save the file on the local file system
         //TODO - save file to disk if not existent, or save to database?
-        String filePath = FileController.saveFile(file, UPLOAD_DIR);
+        String filePath = FileController.saveFile(file, USER_UPLOAD_DIR);
 
         //set name
         document.setName(file.getName());
 
         // normalize the file path
-        document.setPath(UPLOAD_DIR + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
+        document.setPath(USER_UPLOAD_DIR + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
 
         XWPFDocument xwpfDocument = FileController.convertWordToXWPFDocument(filePath);
 
@@ -128,22 +129,13 @@ public class MainController {
             document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
         }
 
-        //create object for each table - either api or excel file fill
-
-        //avoid the case where an empty array is returned
-        if (userInput.getApisCommaSeparated().split(",").length == 0) {
-            userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
-        }
+        userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
         String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+
         for (int i = 0; i < document.getTables().size(); i++) {
             //TODO make excel object with name, api true/fasle , file
             String filepath = null;
-
-            //case table is ignored
-            if (!FileController.verifyFile(files[i], ".xls") && apisCommaSeparated[i].equals(" ")) {
-                continue;
-            }
 
             // case excel is valid, ignore api
             if (FileController.verifyFile(files[i], ".xls")) {
@@ -167,14 +159,26 @@ public class MainController {
 
         //iterate all document tables and add them
         for (DocumentTable documentTable : document.getDocumentTables()) {
-            if (!documentTable.getFilePath().equals(null)) {
-                DocumentGeneratorController.addExcelTableToDocumentTable(documentTable);
+            if (!(documentTable.getFilePath() == null)) {
+                try { //TODO throw exception to UI if table headers of excel and word doc do not match
+                    DocumentGeneratorController.addExcelTableToDocumentTable(documentTable);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {
                 //use api
             } else {
 //                do nothing
             }
         }
+        DocumentGeneratorController.saveDocument("modificat.docx");
+
+        //make documen null
+        document.clear();
+
+        //delete files
+        FileController.deleteTempFiles();
+
         return "result";
     }
 

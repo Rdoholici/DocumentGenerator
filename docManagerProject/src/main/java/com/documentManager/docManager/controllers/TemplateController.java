@@ -37,7 +37,7 @@ public class TemplateController {
             rowCells.add(jiraTicket.getPriority());
             rowCells.add(jiraTicket.getSeverity());
             rowCells.add(jiraTicket.getStatus());
-            DocumentGeneratorController.addRowToTable("Issue type - Key - Summary - Priority - Severity - Status", rowCells);
+//            DocumentGeneratorController.addRowToTable("Issue type - Key - Summary - Priority - Severity - Status", rowCells);
         }
     }
 
@@ -84,7 +84,7 @@ public class TemplateController {
         almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getFailedTestCases().toString() + ", " + percentageFailedTCs + "%");
         almCells.add(almService.getALMReleaseInfoByReleaseNo(releaseNo).getBlockedTestCases().toString() + ", " + percentageBlockedTCs + "%");
 
-        DocumentGeneratorController.addRowToTable("Function/modules - Total tcs - Tcs passed - Tcs not completed - Tcs failed - Tcs blocked", almCells);
+//        DocumentGeneratorController.addRowToTable("Function/modules - Total tcs - Tcs passed - Tcs not completed - Tcs failed - Tcs blocked", almCells);
 
         DocumentGeneratorController.replaceTextInAllParagraphs("RELEASE_NO", confluenceService.getConfluenceReleaseInfo(id).getReleaseNumber());
         DocumentGeneratorController.replaceTextInAllParagraphs("TITLE", confluenceService.getConfluenceReleaseInfo(id).getAppName());

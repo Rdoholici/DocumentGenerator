@@ -19,10 +19,10 @@ public class Document {
     private Set<String> keywords;
     private static Document document = new Document();
 
-    private HashMap<String,String> completedKeywords = new HashMap<>();
+    private HashMap<String, String> completedKeywords = new HashMap<>();
 
     public void putKeywordPair(String key, String value) {
-        completedKeywords.put(key,value);
+        completedKeywords.put(key, value);
     }
 
     public static Document getInstance() {
@@ -33,7 +33,11 @@ public class Document {
         documentTables.add(dt);
     }
 
-    public List<DocumentTable> getDocumentTables(){
+    public List<DocumentTable> getDocumentTables() {
         return documentTables;
+    }
+
+    public void clear() {
+        document = new Document();
     }
 }
