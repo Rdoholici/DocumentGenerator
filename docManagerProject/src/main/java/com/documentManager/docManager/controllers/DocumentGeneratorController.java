@@ -77,9 +77,17 @@ public class DocumentGeneratorController {
         Workbook workbook = WorkbookFactory.create(new File(documentTable.getFilePath()));
 
         //iterate document tables and find the tables with the same header
+        
+//        XWPFParagraph xwpfParagraph = (XWPFParagraph) xwpfDocument.getBodyElements(); - iterate this to find the paragraph with the given text (must cast to XWPFParagraph)
+//        xwpfParagraph.getText().equals("ce titlu am pus") -> get index of the element
+//        the next index will be the required table - must cast to XWPFTable
+
         List<XWPFTable> possibleTables = findTablesByHeader(documentTable.getName());
 
+        //if table has content, go to next
         addExcelRowsToTable(possibleTables.get(0), workbook); //TODO which possible table to use?
         workbook.close();
+
+
     }
 }
