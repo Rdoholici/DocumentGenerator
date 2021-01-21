@@ -72,12 +72,7 @@ public class DocumentGeneratorController {
     }
 
     private static List<XWPFTable> findTablesByHeader(String header) {
-
-        int count = (int) xwpfDocument.getTables().stream().filter(
-                table -> table.getText().replace("\t", "").replace("\n", "").replace(" ", "")
-                        .contains(header.replace(" ", ""))).count();
-
-       return xwpfDocument.getTables().stream().filter(
+        return xwpfDocument.getTables().stream().filter(
                 table -> table.getText().replace("\t", "").replace("\n", "").replace(" ", "")
                         .contains(header.replace(" ", ""))).collect(Collectors.toList());
     }
@@ -86,23 +81,8 @@ public class DocumentGeneratorController {
         Workbook workbook = WorkbookFactory.create(new File(documentTable.getFilePath()));
 Document document = Document.getInstance();
         //iterate document tables and find the tables with the same header
-
-//        XWPFParagraph xwpfParagraph = (XWPFParagraph) xwpfDocument.getBodyElements();
-//        - iterate this to find the paragraph with the given text (must cast to XWPFParagraph)
-//        xwpfParagraph.getText().equals("ce titlu am pus") -> get index of the element
-//        the next index will be the required table - must cast to XWPFTable
-
-        xwpfDocument.getBodyElements();
         List<XWPFTable> possibleTables = findTablesByHeader(documentTable.getName());
-//        System.out.println(possibleTables.size());
-//        for(int i =0;i<possibleTables.size();i++){
-//            System.out.println(document.getTableTitles().get(i)+"-"+possibleTables.get(i).getText().replace("\t", "").replace("\n", "").replace(" ", ""));
-//        }
-//        List<XWPFParagraph> allDocParagraphs =  xwpfDocument.getParagraphs();
-//        xwpfDocument.getParagraphs().get(15).getText();
-        
 
-        //if table has content, go to next
         addExcelRowsToTable(possibleTables.get(0), workbook); //TODO which possible table to use?
         workbook.close();
 
