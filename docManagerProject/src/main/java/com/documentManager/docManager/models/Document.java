@@ -14,6 +14,7 @@ public class Document {
     private String user;
     private String path;
     private List<String> tables;
+    private List<String> tableTitles;
     private DocumentType documentType;
     private List<DocumentTable> documentTables = new ArrayList<>();
     private Set<String> keywords;

@@ -1,14 +1,10 @@
 package com.documentManager.docManager.controllers;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,5 +28,17 @@ public class DocumentParser {
             toReturn.add(tableText);
         }
         return toReturn;
+    }
+
+    public static List<String> getTableTitles(XWPFDocument document) {
+
+        java.util.List<XWPFParagraph> paragraphs =  document.getParagraphs();
+        List<String> titlesToReturn = new ArrayList<>();
+        for (XWPFParagraph paragraph: paragraphs){
+            if(paragraph.getText().substring(0, Math.min(paragraph.getText().length(), 5)).equals("Table")) {
+                titlesToReturn.add(paragraph.getText());
+            }
+        }
+                return titlesToReturn;
     }
 }

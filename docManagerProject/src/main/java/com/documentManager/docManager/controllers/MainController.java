@@ -4,7 +4,6 @@ import com.documentManager.docManager.models.Document;
 import com.documentManager.docManager.models.DocumentTable;
 import com.documentManager.docManager.models.DocumentType;
 import com.documentManager.docManager.models.UserInput;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +23,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 //import com.documentManager.docManager.models.UserKeyword;
 
@@ -34,12 +36,12 @@ public class MainController {
 
     //file location
     private final String UPLOAD_DIR = "./uploads/";
-    private String TEMPL_UPLOAD_DIR = "./uploads/templates";
+    private String TEMPL_UPLOAD_DIR = "./uploads/templates/";
     private String TABLE_UPLOAD_DIR = "./uploads/tables/";
     private String USER_UPLOAD_DIR = "./uploads/userUploads/";
     private String RESULT = "./uploads/results/";
 
-    private Path path;
+
     private Path templPath;
     Document document = Document.getInstance();
     //variable for file name manipulation
@@ -102,6 +104,17 @@ public class MainController {
 
         //get table headers and store them
         document.setTables(DocumentParser.getTableHeaders(xwpfDocument));
+        document.setTableTitles(DocumentParser.getTableTitles(xwpfDocument)); //added by me
+
+        System.out.println(document.getTables());
+        System.out.println(document.getTableTitles());
+
+        Map<String, String> test = IntStream.range(0, document.getTableTitles().size()).boxed()
+                .collect(Collectors.toMap(i -> document.getTableTitles().get(i), i -> document.getTables().get(i)));
+
+        for (Map.Entry<String,String> entry : test.entrySet())
+            System.out.println("Key = " + entry.getKey() +
+                    ", Value = " + entry.getValue());
 
         // set the progressbar and errorflag and return success message
         progressBar = 50;
@@ -109,8 +122,11 @@ public class MainController {
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("message", "You successfully uploaded " + document.getName() + '!');
         model.addAttribute("keywords", document.getKeywords());
-        model.addAttribute("tableHeaders", document.getTables());
+        model.addAttribute("tableTitles", document.getTableTitles());
+        model.addAttribute("tableHeaders", document.getTableTitles());
         model.addAttribute("userInput", new UserInput());
+
+
         return "page1";
     }
 
@@ -122,7 +138,7 @@ public class MainController {
     }
 
     @PostMapping("/result")
-    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model) throws IOException, InvalidFormatException {
+    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model) throws Exception {
         progressBar = 100;
         model.addAttribute("progressBar", progressBar);
 
@@ -132,16 +148,23 @@ public class MainController {
             document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
         }
 
+        String[] tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
+
+
+
+
+
+
         userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
         String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
 
-        for (int i = 0; i < document.getTables().size(); i++) {
+        for (int i = 0; i < document.getTableTitles().size(); i++) {
             //TODO make excel object with name, api true/fasle , file
             String filepath = null;
 
             // case excel is valid, ignore api
-            if (FileController.verifyFile(files[i], ".xls")) {
+            if (FileController.verifyFile(files[i], ".xls")||FileController.verifyFile(files[i], ".xlsx")) {
                 filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
                 //case excel is invalid, use api
             } else {
@@ -160,20 +183,22 @@ public class MainController {
             DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
         }
 
-        //iterate all document tables and add them
-        for (DocumentTable documentTable : document.getDocumentTables()) {
-            if (!(documentTable.getFilePath() == null)) {
-                try { //TODO throw exception to UI if table headers of excel and word doc do not match
-                    DocumentGeneratorController.addExcelTableToDocumentTable(documentTable);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {//TODO
-                //use api
-            } else {
-                //do nothing
-            }
-        }
+        DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated,files);
+
+//        //iterate all document tables and add them
+//        for (DocumentTable documentTable : document.getDocumentTables()) {
+//            if (!(documentTable.getFilePath() == null)) {
+//                try { //TODO throw exception to UI if table headers of excel and word doc do not match
+//                    DocumentGeneratorController.addExcelTableToDocumentTable(documentTable);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {//TODO
+//                //use api
+//            } else {
+//                //do nothing
+//            }
+//        }
 
         DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
