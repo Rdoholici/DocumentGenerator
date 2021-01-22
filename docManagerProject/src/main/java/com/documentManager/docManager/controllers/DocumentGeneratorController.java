@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class DocumentGeneratorController {
     private static XWPFDocument xwpfDocument;
 
+
     public static void saveDocument(String outputFileName) throws IOException {
         FileOutputStream out = new FileOutputStream(outputFileName);
         xwpfDocument.write(out);
@@ -96,12 +97,44 @@ public class DocumentGeneratorController {
             for(int j=0;j<documentElementsList.size();j++){
                 if(documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
                         ((XWPFParagraph) documentElementsList.get(j)).getText().equals(identifierList[i])) {
-//                    avem tabelul
+
                     XWPFTable xwpfTable = (XWPFTable) documentElementsList.get(j+1);
-//                    ne trebuie excelul
-                    String filePath = FileController.saveFile(userExcelFiles[i],"./uploads/tables/");
-                    Workbook workbook = WorkbookFactory.create(new File(filePath));
-                    addExcelRowsToTable(xwpfTable,workbook);
+                    FileInputStream fileInputStream = null;
+
+                    try {
+
+                        if(userExcelFiles[i].getSize()!=0) {
+
+//                            System.out.println("nu e null");
+
+                            String TABLE_UPLOAD_DIR = "./uploads/tables/";
+                            String filePath = FileController.saveFile(userExcelFiles[i], TABLE_UPLOAD_DIR);
+                            File workbookFile = new File(filePath);
+                            fileInputStream = new FileInputStream(workbookFile);
+                            Workbook workbook = WorkbookFactory.create(fileInputStream);
+
+                            //number of columns from word document
+                            int noOfWordColumns = xwpfTable.getRow(0).getTableCells().size();
+                            Sheet sheet = workbook.getSheetAt(0);
+                            //number of columns from excel document
+                            int noOfExcelColumns = sheet.getRow(0).getPhysicalNumberOfCells();
+
+                            if(noOfWordColumns==noOfExcelColumns) {
+                                addExcelRowsToTable(xwpfTable, workbook);
+                            }
+                            else {
+                                System.out.println("different number of columns excel vs words");
+                            }
+
+                        }
+                        else {
+                            System.out.println("e null");
+                        }
+                    } finally {
+                        if(fileInputStream!=null){
+                            fileInputStream.close();
+                        }
+                    }
                 }
             }
         }

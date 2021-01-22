@@ -26,9 +26,11 @@ public class FileController {
     private static String RESULT = "./uploads/results";
 
     public static String saveFile(MultipartFile file, String pathToSave) {
+
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        try {
+
             Path path = Paths.get(pathToSave + fileName);
+        try {
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             return path.toString();
         } catch (IOException e) {
