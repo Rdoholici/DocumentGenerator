@@ -7,11 +7,38 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
-        $('#myModal').on('shown.bs.modal', function () {
-            $('#myInput').trigger('focus')
-        })
+        $(document).ready(function(){
+            // code to read selected table row cell data (values).
+            $(".btnSelect").on('click',function(){
+                var currentRow=$(this).closest("tr");
+                var col1=currentRow.find("td:eq(0)").html();
+                // // var col2=currentRow.find("td:eq(1)").html();
+                // // var col3=currentRow.find("td:eq(2)").html();
+                // // var data=col1+"\n"+col2+"\n"+col3;
+                // // var data = col1;
+                // var inputfield = currentRow.closest("input");
+                //
+                // var inputvalue = col1;
+                // inputfield.val(inputvalue)
+
+                $(this)
+                    .closest('tr')
+                    .find('input').val(col1);
+                // $('#id1').val(inputvalue);
+                // alert(col1);
+            });
+        });
     </script>
+
+<!--    <script>-->
+<!--        function myFunction() {-->
+<!--            $('.tst').val($('.tst').val() + 'Table 1. Risks and Issues');-->
+<!--        }-->
+<!--    </script>-->
+
 </head>
 <body>
 
@@ -46,32 +73,33 @@
 
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th>Table Title</th>
-                            <th>API</th>
-                            <th></th>
-                            <th>Identifier</th>
-                        </tr>
+                    <tr>
+                        <th>Table Title</th>
+                        <th>API</th>
+                        <th></th>
+                        <th>Identifier</th>
+                    </tr>
                     </thead>
 
                     <tbody>
-                        <tr th:each = "table : ${tableTitles}">
-                            <td th:text = "${table}"></td>
-                            <td>
-                                <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key" th:field = "*{apisCommaSeparated}"></td>
-                            <td>
-                            <td>
-                                <input type="text" class="form-control" id="formGroupExampleInput31"
-                                       th:field = "*{tableTitleCommaSeparated}"></td>
-                            <td>
-                                <input type="file" class="form-control-file" id="files" name="files"
-                                         accept=".xls,.xlsx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    <tr th:each = "table : ${tableTitles}">
+                        <td  th:text = "${table}"></td>
+                        <td>
+                            <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key" th:field = "*{apisCommaSeparated}"></td>
+                        <td>
+                        <td>
+                            <input type="text" class="form-control"  id="id1"
+                                   th:field = "*{tableTitleCommaSeparated}">
+                        <td>
+                            <input type="file" class="form-control-file btnSelect" id="files" name="files"
+                                   accept=".xls,.xlsx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+
                         </td>
-                        </tr>
+                    </tr>
                     </tbody>
                 </table>
 
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" id ="btn1" class="btn btn-primary">Submit</button>
             </form>
         </div>
     </div>

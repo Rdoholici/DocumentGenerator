@@ -7,4 +7,5 @@ public class UserInput {
     private String keywordsCommaSeparated;
     private String apisCommaSeparated;
     private String tableTitleCommaSeparated;
+
 }

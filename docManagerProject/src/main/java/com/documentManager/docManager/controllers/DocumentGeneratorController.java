@@ -79,7 +79,7 @@ public class DocumentGeneratorController {
 
     public static void addExcelTableToDocumentTable(DocumentTable documentTable) throws Exception {
         Workbook workbook = WorkbookFactory.create(new File(documentTable.getFilePath()));
-Document document = Document.getInstance();
+        Document document = Document.getInstance();
         //iterate document tables and find the tables with the same header
         List<XWPFTable> possibleTables = findTablesByHeader(documentTable.getName());
 

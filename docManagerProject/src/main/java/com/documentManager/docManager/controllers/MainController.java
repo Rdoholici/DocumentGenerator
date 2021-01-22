@@ -155,6 +155,7 @@ public class MainController {
 
 
 
+
         userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
         String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
