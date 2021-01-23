@@ -113,6 +113,9 @@ public class DocumentGeneratorController {
                             fileInputStream = new FileInputStream(workbookFile);
                             Workbook workbook = WorkbookFactory.create(fileInputStream);
 
+
+                            //verificare daca excelul uploadat are acelasi numar de coloane ca si in word
+                            //daca avem diferenta, nu ii incarcam acel excel.
                             //number of columns from word document
                             int noOfWordColumns = xwpfTable.getRow(0).getTableCells().size();
                             Sheet sheet = workbook.getSheetAt(0);

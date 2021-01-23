@@ -1,9 +1,6 @@
 package com.documentManager.docManager.controllers;
 
-import com.documentManager.docManager.models.Document;
-import com.documentManager.docManager.models.DocumentTable;
-import com.documentManager.docManager.models.DocumentType;
-import com.documentManager.docManager.models.UserInput;
+import com.documentManager.docManager.models.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,10 +20,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
+//import jdk.internal.joptsimple.internal.Strings;
 
 //import com.documentManager.docManager.models.UserKeyword;
 
@@ -40,6 +36,7 @@ public class MainController {
     private String TABLE_UPLOAD_DIR = "./uploads/tables/";
     private String USER_UPLOAD_DIR = "./uploads/userUploads/";
     private String RESULT = "./uploads/results/";
+
 
 
     private Path templPath;
@@ -72,11 +69,27 @@ public class MainController {
     public String homepage(Model model) {
         DocumentType documentType = new DocumentType();
         model.addAttribute("documentType", documentType);
-
+        model.addAttribute("errorFlag", false);
         List<String> listType = Arrays.asList("TER - release", "TER - Hot Fix");//TODO per user entries
         model.addAttribute("listType", listType);
         return "index";
     }
+
+    @GetMapping("/page1")
+        public String showPage(Model model,@ModelAttribute("userInput") UserInput userInput,RedirectAttributes attributes) {
+
+
+        progressBar = 50;
+
+        model.addAttribute("progressBar", progressBar);
+        model.addAttribute("errorFlag", errorFlag);
+        model.addAttribute("keywords", document.getKeywords());
+        model.addAttribute("tableTitles", document.getTableTitles());
+        model.addAttribute("tableHeaders", document.getTableTitles());
+        model.addAttribute("userInput", new UserInput());
+
+        return "page1";
+        }
 
 
     @PostMapping("/page1") //for new ter from user
@@ -106,18 +119,9 @@ public class MainController {
         document.setTables(DocumentParser.getTableHeaders(xwpfDocument));
         document.setTableTitles(DocumentParser.getTableTitles(xwpfDocument)); //added by me
 
-        System.out.println(document.getTables());
-        System.out.println(document.getTableTitles());
 
-        Map<String, String> test = IntStream.range(0, document.getTableTitles().size()).boxed()
-                .collect(Collectors.toMap(i -> document.getTableTitles().get(i), i -> document.getTables().get(i)));
-
-        for (Map.Entry<String,String> entry : test.entrySet())
-            System.out.println("Key = " + entry.getKey() +
-                    ", Value = " + entry.getValue());
-
-        // set the progressbar and errorflag and return success message
         progressBar = 50;
+
         model.addAttribute("progressBar", progressBar);
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("message", "You successfully uploaded " + document.getName() + '!');
@@ -130,32 +134,63 @@ public class MainController {
         return "page1";
     }
 
-    @GetMapping("/result")
-    public String showResult(Model model) {
-//        UserKeyword userKeyword = new UserKeyword();
-//        model.addAttribute("userKeyword", userKeyword);
+    @GetMapping(value = "/result")
+    public String showResult(Model model,@ModelAttribute("userInput") UserInput userInput) {
+
+        UserKeyword userKeyword = new UserKeyword();
+        model.addAttribute("userKeyword", userKeyword);
+
+        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
+
+        //for keyword user input validation. check if all the keywords were added
+        String[] removedNull = Arrays.stream(keywordsCommaSeparated)
+                .filter(value ->
+                        value != null && value.length() > 0
+                )
+                .toArray(size -> new String[size]);
+
+
+        if(document.getKeywords().toArray().length!= removedNull.length){
+            model.addAttribute("message", "You need to enter all the keywords!");
+            return "redirect:/page1";
+        }
+
         return "result";
     }
-
-    @PostMapping("/result")
-    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model) throws Exception {
+    @PostMapping(value = "/result")
+    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model,RedirectAttributes attributes) throws Exception {
+        String result = "result";
         progressBar = 100;
         model.addAttribute("progressBar", progressBar);
 
         //iterate keywords and populate document object
         String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
-        for (int i = 0; i < keywordsCommaSeparated.length; i++) {
-            document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
-        }
+//        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",",", ").split(",");
+        //for keyword user input validation. check if all the keywords were added
+        String[] removedNull = Arrays.stream(keywordsCommaSeparated)
+                .filter(value ->
+                        value != null && value.length() > 0
+                )
+                .toArray(size -> new String[size]);
+
+
+if(document.getKeywords().toArray().length!= removedNull.length){
+    errorFlag = false;
+    attributes.addFlashAttribute("message", "You didn't insert all the keywords");
+    attributes.addFlashAttribute("errorFlag", "You didn't insert all the keywords");
+    return "redirect:/page1";
+
+//    if(document.getKeywords().size()!=userInput.getKeywordsCommaSeparated().split(",").length){
+//
+//    }
+
+}
+
+            for (int i = 0; i < keywordsCommaSeparated.length; i++) {
+                document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
+            }
 
         String[] tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
-
-
-
-
-
-
-
         userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
         String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
@@ -186,24 +221,9 @@ public class MainController {
 
         DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated,files);
 
-//        //iterate all document tables and add them
-//        for (DocumentTable documentTable : document.getDocumentTables()) {
-//            if (!(documentTable.getFilePath() == null)) {
-//                try { //TODO throw exception to UI if table headers of excel and word doc do not match
-//                    DocumentGeneratorController.addExcelTableToDocumentTable(documentTable);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            } else if (!documentTable.getApi().equals(null) || !documentTable.getApi().equals(" ")) {//TODO
-//                //use api
-//            } else {
-//                //do nothing
-//            }
-//        }
-
         DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
-        //make documen null
+        //make document null
         document.clear();
 
         //delete files
@@ -214,7 +234,7 @@ public class MainController {
         File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
 
         model.addAttribute("files", listOfFiles);
-        return "result";
+        return result;
     }
 
     @RequestMapping("/file/{tempfileName}")
