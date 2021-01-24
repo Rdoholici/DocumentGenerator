@@ -184,8 +184,8 @@
                        <td>1</td>
                       <td>Choose a template from our repo</td>
                         <td><div class="form-group">
-                          <select class="form-control" id="sel1" th:field="*{name}">
-                                <option th:each="p : ${listType}" th:value="${p}" th:text="${p}" />
+                            <select class="form-control" id="sel1" th:field="*{name}">
+                                <option th:each="p : ${listType}" th:value="${p.getName()}" th:text="${p.getName()}" />
                             </select>
                         </div>
                         </td>

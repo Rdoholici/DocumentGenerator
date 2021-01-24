@@ -7,8 +7,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,7 +21,16 @@ import java.util.stream.Collectors;
 
 public class DocumentGeneratorController {
     private static XWPFDocument xwpfDocument;
+    public static boolean numberOfColWordExcelDiffer = true;
 
+
+    public static boolean isNumberOfColWordExcelDiffer() {
+        return numberOfColWordExcelDiffer;
+    }
+
+    public static void setNumberOfColWordExcelDiffer(boolean numberOfColWordExcelDiffer) {
+        DocumentGeneratorController.numberOfColWordExcelDiffer = numberOfColWordExcelDiffer;
+    }
 
     public static void saveDocument(String outputFileName) throws IOException {
         FileOutputStream out = new FileOutputStream(outputFileName);
@@ -48,6 +58,15 @@ public class DocumentGeneratorController {
                 row.getCell(j).setText(rowtext.get(j));
             }
         }
+
+        CTTblBorders borders = xwpfTable.getCTTbl().getTblPr().addNewTblBorders();
+        borders.addNewBottom().setVal(STBorder.SINGLE);
+        borders.addNewLeft().setVal(STBorder.SINGLE);
+        borders.addNewRight().setVal(STBorder.SINGLE);
+        borders.addNewTop().setVal(STBorder.SINGLE);
+    //also inner borders
+        borders.addNewInsideH().setVal(STBorder.SINGLE);
+        borders.addNewInsideV().setVal(STBorder.SINGLE);
     }
 
     public static void setDocumentTemplate(String templatePath) throws IOException {
@@ -90,7 +109,14 @@ public class DocumentGeneratorController {
 
     }
 
+
     public static void dataBindingIdExcel(String[] identifierList , MultipartFile[] userExcelFiles) throws Exception {
+
+//        errorFlag = false;
+//        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
+//        attributes.addFlashAttribute("message", message);
+
+
 
         for(int i=0;i<identifierList.length;i++){
             List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
@@ -106,14 +132,11 @@ public class DocumentGeneratorController {
                         if(userExcelFiles[i].getSize()!=0) {
 
 //                            System.out.println("nu e null");
-
                             String TABLE_UPLOAD_DIR = "./uploads/tables/";
                             String filePath = FileController.saveFile(userExcelFiles[i], TABLE_UPLOAD_DIR);
                             File workbookFile = new File(filePath);
                             fileInputStream = new FileInputStream(workbookFile);
                             Workbook workbook = WorkbookFactory.create(fileInputStream);
-
-
                             //verificare daca excelul uploadat are acelasi numar de coloane ca si in word
                             //daca avem diferenta, nu ii incarcam acel excel.
                             //number of columns from word document
@@ -123,12 +146,12 @@ public class DocumentGeneratorController {
                             int noOfExcelColumns = sheet.getRow(0).getPhysicalNumberOfCells();
 
                             if(noOfWordColumns==noOfExcelColumns) {
+                                setNumberOfColWordExcelDiffer(true);
                                 addExcelRowsToTable(xwpfTable, workbook);
                             }
                             else {
-                                System.out.println("different number of columns excel vs words");
+                                setNumberOfColWordExcelDiffer(false);
                             }
-
                         }
                         else {
                             System.out.println("e null");

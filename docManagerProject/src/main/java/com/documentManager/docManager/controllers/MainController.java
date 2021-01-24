@@ -18,7 +18,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 //import jdk.internal.joptsimple.internal.Strings;
 
@@ -35,14 +38,17 @@ public class MainController {
     private String USER_UPLOAD_DIR = "./uploads/userUploads/";
     private String RESULT = "./uploads/results/";
 
-
+    File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
+    File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
 
     private Path templPath;
     Document document = Document.getInstance();
     //variable for file name manipulation
 
     //variables for html manipulation and errors
-    boolean errorFlag = true;
+    static boolean errorFlag = true;
+
+
     Set<String> message= new HashSet<String>();
 
     int progressBar = 0;
@@ -72,8 +78,7 @@ public class MainController {
         DocumentType documentType = new DocumentType();
         model.addAttribute("documentType", documentType);
         model.addAttribute("errorFlag", false);
-        List<String> listType = Arrays.asList("TER - release", "TER - Hot Fix");//TODO per user entries
-        model.addAttribute("listType", listType);
+        model.addAttribute("listType", listOfFiles);
         return "index";
     }
 
@@ -135,6 +140,61 @@ public class MainController {
 
 
         return "page1";
+    }
+
+    @GetMapping("/existingTemplate")
+    public String showPageExTemplate(Model model,@ModelAttribute("userInput") UserInput userInput,RedirectAttributes attributes) {
+
+
+        progressBar = 50;
+
+        model.addAttribute("progressBar", progressBar);
+        model.addAttribute("errorFlag", errorFlag);
+        model.addAttribute("keywords", document.getKeywords());
+        model.addAttribute("tableTitles", document.getTableTitles());
+        model.addAttribute("tableHeaders", document.getTableTitles());
+        model.addAttribute("userInput", new UserInput());
+
+        return "extempresult";
+    }
+
+
+    @PostMapping("/existingTemplate") //for new ter from user
+    public String uploadFileExTemplate(@ModelAttribute("documentType") DocumentType documentType,RedirectAttributes attributes, Model model) throws IOException {
+
+        File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
+        File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
+
+        for(int i = 0; i< Objects.requireNonNull(listOfFiles).length; i++){
+            if(documentType.getName().equals(listOfFiles[i].getName())) {
+                templPath = Paths.get(TEMPL_UPLOAD_DIR + listOfFiles[i].getName());
+                document.setPath(TEMPL_UPLOAD_DIR + listOfFiles[i].getName());
+            }
+        }
+
+        File docxDoc = new File(templPath.toString());
+        FileInputStream fis = new FileInputStream(docxDoc.getAbsolutePath());
+        XWPFDocument xwpfDocument = new XWPFDocument(fis);
+
+        //get keywords and store them
+        document.setKeywords(DocumentParser.getKeyWords(xwpfDocument, "<change>")); //TODO get rid of hardcoded
+
+        //get table headers and store them
+        document.setTables(DocumentParser.getTableHeaders(xwpfDocument));
+        document.setTableTitles(DocumentParser.getTableTitles(xwpfDocument)); //added by me
+
+        errorFlag = true;
+        progressBar = 50;
+        model.addAttribute("progressBar",progressBar);
+        model.addAttribute("files",listOfFiles); // for showing the user the list of templates we have
+        model.addAttribute("errorFlag", errorFlag);
+        model.addAttribute("keywords", document.getKeywords());
+        model.addAttribute("tableTitles", document.getTableTitles());
+        model.addAttribute("tableHeaders", document.getTableTitles());
+        model.addAttribute("userInput", new UserInput());
+
+
+        return "extempresult";
     }
 
     @GetMapping(value = "/result")
@@ -228,9 +288,7 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
             document.addDT(dt);
         }
 
-        if(message.size()>=1){
-            return "redirect:/page1";
-        }
+
 
         //create document
         DocumentGeneratorController.setDocumentTemplate(document.getPath());
@@ -241,8 +299,18 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
         }
 
         DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated,files);
+        if(DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
+            DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
+        }
+        else {
+                errorFlag = false;
+                message.add("Number of columns from the excel(s) are different than from the word table(s)");
+                attributes.addFlashAttribute("message", message);
+        }
 
-        DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
+        if(message.size()>=1){
+            return "redirect:/page1";
+        }
 
         //make document null
         document.clear();
@@ -279,35 +347,7 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
         }
     }
 
-    @PostMapping("/existingTemplate")
-    public String submitForm(@ModelAttribute("documentType") DocumentType documentType, Model model) throws IOException {
 
-        progressBar = 50;
-        model.addAttribute("progressBar", progressBar);
-        if (documentType.getName().equals("TER - release")) {
-            templPath = Paths.get(TEMPL_UPLOAD_DIR + "\\ter_release.docx");
-            System.out.println(templPath);
-            System.out.println("OK");
-        } else if (documentType.getName().equals("TER - Hot Fix")) {
-            templPath = Paths.get(TEMPL_UPLOAD_DIR + "\\ter_hotfix.docx");
-            System.out.println(templPath);
-            System.out.println("OK");
-        }
-
-        File docxDoc = new File(templPath.toString());
-        FileInputStream fis = new FileInputStream(docxDoc.getAbsolutePath());
-        XWPFDocument document = new XWPFDocument(fis);
-
-        String fileName = StringUtils.cleanPath(Objects.requireNonNull(docxDoc.getName()));
-        errorFlag = true;
-
-        model.addAttribute("errorFlag", errorFlag);
-        model.addAttribute("keywords", DocumentParser.getKeyWords(document, "<change>"));
-        model.addAttribute("tableHeaders", DocumentParser.getTableHeaders(document));
-        model.addAttribute("message", "You successfully selected " + fileName + " template!");
-
-        return "extempresult";
-    }
 }
 
 
