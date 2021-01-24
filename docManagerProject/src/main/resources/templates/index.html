@@ -157,7 +157,9 @@
             </div>
         </br>
             <br/>
-            <div th:text="${message}" th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
+            <div th:each="m: ${message}" th:text="${m}" th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'"> <div th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
+                <p th:each="m: ${message}" th:text="${m}"></p>
+            </div>
 
             </div>
 

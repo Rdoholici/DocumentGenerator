@@ -18,9 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 //import jdk.internal.joptsimple.internal.Strings;
 
@@ -43,8 +41,10 @@ public class MainController {
     Document document = Document.getInstance();
     //variable for file name manipulation
 
-    //variables for html manipulation
+    //variables for html manipulation and errors
     boolean errorFlag = true;
+    Set<String> message= new HashSet<String>();
+
     int progressBar = 0;
 
 
@@ -52,7 +52,8 @@ public class MainController {
     //StandardServletMultipartResolver
     @ExceptionHandler(MultipartException.class)
     public String handleError1(MultipartException e, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("message", e.getCause().getMessage());
+        message.add(e.getCause().getMessage());
+        redirectAttributes.addFlashAttribute("message", message);
         errorFlag = false;
         return "redirect:/";
     }
@@ -60,7 +61,8 @@ public class MainController {
     //CommonsMultipartResolver
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public String handleError2(MaxUploadSizeExceededException e, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("message", "The field file exceeds its maximum permitted size of 1048576 bytes.");
+        message.add("The field file exceeds its maximum permitted size of 1048576 bytes.");
+        redirectAttributes.addFlashAttribute("message", message);
         errorFlag = false;
         return "redirect:/";
     }
@@ -96,7 +98,8 @@ public class MainController {
     public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes, Model model) throws IOException {
         // check file to exist and be docx type
         if (!FileController.verifyFile(file, ".doc")) {
-            attributes.addFlashAttribute("message", "Please select a valid docx file to upload.");
+            message.add("Please select a valid docx file to upload.");
+            attributes.addFlashAttribute("message", message);
             return "redirect:/";
         }
 //TODO get user input other than file
@@ -121,10 +124,10 @@ public class MainController {
 
 
         progressBar = 50;
-
+        errorFlag = true;
         model.addAttribute("progressBar", progressBar);
         model.addAttribute("errorFlag", errorFlag);
-        model.addAttribute("message", "You successfully uploaded " + document.getName() + '!');
+        model.addAttribute("message", "You successfully uploaded " + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())) + '!');
         model.addAttribute("keywords", document.getKeywords());
         model.addAttribute("tableTitles", document.getTableTitles());
         model.addAttribute("tableHeaders", document.getTableTitles());
@@ -136,7 +139,7 @@ public class MainController {
 
     @GetMapping(value = "/result")
     public String showResult(Model model,@ModelAttribute("userInput") UserInput userInput) {
-
+        errorFlag = true;
         UserKeyword userKeyword = new UserKeyword();
         model.addAttribute("userKeyword", userKeyword);
 
@@ -150,22 +153,24 @@ public class MainController {
                 .toArray(size -> new String[size]);
 
 
-        if(document.getKeywords().toArray().length!= removedNull.length){
-            model.addAttribute("message", "You need to enter all the keywords!");
-            return "redirect:/page1";
-        }
+//        if(document.getKeywords().toArray().length!= removedNull.length){
+//            model.addAttribute("message", "You need to enter all the keywords!");
+//            return "redirect:/page1";
+//        }
 
         return "result";
     }
     @PostMapping(value = "/result")
     public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model,RedirectAttributes attributes) throws Exception {
+        message.clear();
+        errorFlag = true;
         String result = "result";
         progressBar = 100;
         model.addAttribute("progressBar", progressBar);
 
         //iterate keywords and populate document object
-        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
-//        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",",", ").split(",");
+//        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
+        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",",", ").split(",");
         //for keyword user input validation. check if all the keywords were added
         String[] removedNull = Arrays.stream(keywordsCommaSeparated)
                 .filter(value ->
@@ -173,17 +178,26 @@ public class MainController {
                 )
                 .toArray(size -> new String[size]);
 
-
-if(document.getKeywords().toArray().length!= removedNull.length){
-    errorFlag = false;
-    attributes.addFlashAttribute("message", "You didn't insert all the keywords");
-    attributes.addFlashAttribute("errorFlag", "You didn't insert all the keywords");
-    return "redirect:/page1";
-
-//    if(document.getKeywords().size()!=userInput.getKeywordsCommaSeparated().split(",").length){
 //
-//    }
+//if(document.getKeywords().toArray().length!= removedNull.length){
+//    errorFlag = false;
+//    attributes.addFlashAttribute("message", "You didn't insert all the keywords");
+//    attributes.addFlashAttribute("errorFlag", errorFlag);
+//    return "redirect:/page1";
+//
+////    if(document.getKeywords().size()!=userInput.getKeywordsCommaSeparated().split(",").length){
+////
+////    }
+//
+//}
 
+for(int i=0;i<keywordsCommaSeparated.length;i++){
+
+    if(keywordsCommaSeparated[i].trim().equals("")){
+        errorFlag = false;
+        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
+        attributes.addFlashAttribute("message", message);
+    }
 }
 
             for (int i = 0; i < keywordsCommaSeparated.length; i++) {
@@ -200,15 +214,22 @@ if(document.getKeywords().toArray().length!= removedNull.length){
             String filepath = null;
 
             // case excel is valid, ignore api
-            if (FileController.verifyFile(files[i], ".xls")||FileController.verifyFile(files[i], ".xlsx")) {
-                filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
-                //case excel is invalid, use api
-            } else {
-                //use api
+            if(!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
+                if ((FileController.verifyFile(files[i], ".xls") || FileController.verifyFile(files[i], ".xlsx"))) {
+                    filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
+                    //case excel is invalid, use api
+                } else {
+                    errorFlag = false;
+                    message.add(files[i].getOriginalFilename() + " is not a valid excel file");
+                    attributes.addFlashAttribute("message", message);
+                }
             }
-
             DocumentTable dt = new DocumentTable(document.getTables().get(i), apisCommaSeparated[i], filepath);
             document.addDT(dt);
+        }
+
+        if(message.size()>=1){
+            return "redirect:/page1";
         }
 
         //create document

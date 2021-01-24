@@ -11,24 +11,12 @@
 
     <script>
         $(document).ready(function () {
-            // code to read selected table row cell data (values).
             $(".btnSelect").on('click', function () {
                 var currentRow = $(this).closest("tr");
                 var col1 = currentRow.find("td:eq(0)").html();
-                // // var col2=currentRow.find("td:eq(1)").html();
-                // // var col3=currentRow.find("td:eq(2)").html();
-                // // var data=col1+"\n"+col2+"\n"+col3;
-                // // var data = col1;
-                // var inputfield = currentRow.closest("input");
-                //
-                // var inputvalue = col1;
-                // inputfield.val(inputvalue)
-
                 $(this)
                     .closest('tr')
                     .find('input').val(col1);
-                // $('#id1').val(inputvalue);
-                // alert(col1);
             });
         });
     </script>
@@ -58,8 +46,8 @@
                      aria-valuemax="100" style="width:10%" th:style="|width:${progressBar}%|">
                 </div>
             </div>
-            <div th:text="${message}" th:if="${message ne null}" class="alert" role="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
-
+            <div th:if="${message ne null}" class = "alert" role ="alert" th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
+                <p th:each="m: ${message}" th:text="${m}"></p>
             </div>
 
             <form action="#" th:action="@{/result}" method="POST" th:object="${userInput}"
