@@ -10,6 +10,7 @@ import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -64,7 +65,7 @@ public class DocumentGeneratorController {
         borders.addNewLeft().setVal(STBorder.SINGLE);
         borders.addNewRight().setVal(STBorder.SINGLE);
         borders.addNewTop().setVal(STBorder.SINGLE);
-    //also inner borders
+        //also inner borders
         borders.addNewInsideH().setVal(STBorder.SINGLE);
         borders.addNewInsideV().setVal(STBorder.SINGLE);
     }
@@ -110,26 +111,28 @@ public class DocumentGeneratorController {
     }
 
 
-    public static void dataBindingIdExcel(String[] identifierList , MultipartFile[] userExcelFiles) throws Exception {
+    public static void dataBindingIdExcel(String[] identifierList, MultipartFile[] userExcelFiles) throws Exception {
 
 //        errorFlag = false;
 //        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
 //        attributes.addFlashAttribute("message", message);
 
-
-
-        for(int i=0;i<identifierList.length;i++){
+    // iterate through the identifier list provided from front end
+        for (int i = 0; i < identifierList.length; i++) {
             List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
-            for(int j=0;j<documentElementsList.size();j++){
-                if(documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
+            for (int j = 0; j < documentElementsList.size(); j++) {
+                if (identifierList[i].isEmpty()) {
+                    continue;
+                }
+                if (documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
                         ((XWPFParagraph) documentElementsList.get(j)).getText().equals(identifierList[i])) {
 
-                    XWPFTable xwpfTable = (XWPFTable) documentElementsList.get(j+1);
+                    XWPFTable xwpfTable = (XWPFTable) documentElementsList.get(j + 1);
                     FileInputStream fileInputStream = null;
 
                     try {
 
-                        if(userExcelFiles[i].getSize()!=0) {
+                        if (userExcelFiles[i].getSize() != 0) {
 
 //                            System.out.println("nu e null");
                             String TABLE_UPLOAD_DIR = "./uploads/tables/";
@@ -145,19 +148,17 @@ public class DocumentGeneratorController {
                             //number of columns from excel document
                             int noOfExcelColumns = sheet.getRow(0).getPhysicalNumberOfCells();
 
-                            if(noOfWordColumns==noOfExcelColumns) {
+                            if (noOfWordColumns == noOfExcelColumns) {
                                 setNumberOfColWordExcelDiffer(true);
                                 addExcelRowsToTable(xwpfTable, workbook);
-                            }
-                            else {
+                            } else {
                                 setNumberOfColWordExcelDiffer(false);
                             }
-                        }
-                        else {
+                        } else {
                             System.out.println("e null");
                         }
                     } finally {
-                        if(fileInputStream!=null){
+                        if (fileInputStream != null) {
                             fileInputStream.close();
                         }
                     }

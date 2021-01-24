@@ -230,13 +230,16 @@ public class MainController {
 
         //iterate keywords and populate document object
 //        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
-        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",",", ").split(",");
-        //for keyword user input validation. check if all the keywords were added
-        String[] removedNull = Arrays.stream(keywordsCommaSeparated)
-                .filter(value ->
-                        value != null && value.length() > 0
-                )
-                .toArray(size -> new String[size]);
+
+        if(userInput.getKeywordsCommaSeparated()!=null) {
+            String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",", ", ").split(",");
+            //for keyword user input validation. check if all the keywords were added
+            String[] removedNull = Arrays.stream(keywordsCommaSeparated)
+                    .filter(value ->
+                            value != null && value.length() > 0
+                    )
+                    .toArray(size -> new String[size]);
+
 
 //
 //if(document.getKeywords().toArray().length!= removedNull.length){
@@ -251,19 +254,19 @@ public class MainController {
 //
 //}
 
-for(int i=0;i<keywordsCommaSeparated.length;i++){
+            for (int i = 0; i < keywordsCommaSeparated.length; i++) {
 
-    if(keywordsCommaSeparated[i].trim().equals("")){
-        errorFlag = false;
-        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
-        attributes.addFlashAttribute("message", message);
-    }
-}
+                if (keywordsCommaSeparated[i].trim().equals("")) {
+                    errorFlag = false;
+                    message.add("You didnt insert any value for " + document.getKeywords().toArray()[i]);
+                    attributes.addFlashAttribute("message", message);
+                }
+            }
 
             for (int i = 0; i < keywordsCommaSeparated.length; i++) {
                 document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
             }
-
+        }
         String[] tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
         userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
