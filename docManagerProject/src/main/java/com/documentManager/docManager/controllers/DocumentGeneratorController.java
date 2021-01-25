@@ -78,6 +78,24 @@ public class DocumentGeneratorController {
 
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
         List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains(textToReplace)).collect(Collectors.toList());
+
+//        for (XWPFParagraph paragraph : para) {
+//            String paragraphText = paragraph.getText();
+//            paragraphText = paragraphText.replaceAll(textToReplace,newValue).replaceAll(keyword,"");
+//
+//        }
+//
+//        for (XWPFParagraph p : cell.getParagraphs()) {
+//            for (XWPFRun r : p.getRuns()) {
+//                String text = r.getText(0);
+//                if (text != null && text.contains("needle")) {
+//                    text = text.replace("needle", "haystack");
+//                    r.setText(text,0);
+//                }
+//            }
+//        }
+
+
         for (XWPFParagraph paragraph : para) {
             List<XWPFRun> runs = paragraph.getRuns();
             if (runs != null) {
