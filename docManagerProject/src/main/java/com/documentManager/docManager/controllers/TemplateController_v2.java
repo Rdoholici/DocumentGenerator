@@ -38,7 +38,7 @@ public class TemplateController_v2 {
 
     }
     public static void cleanUpTag() {
-        DocumentGeneratorController.replaceTextInAllParagraphs("<change>", "");
+        DocumentGeneratorController.replaceTextInAllParagraphs("$$", "");
 
     }
 

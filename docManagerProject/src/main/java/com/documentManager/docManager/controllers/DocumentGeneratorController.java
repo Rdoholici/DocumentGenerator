@@ -77,37 +77,22 @@ public class DocumentGeneratorController {
     }
 
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
-        List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains(textToReplace)).collect(Collectors.toList());
-
-//        for (XWPFParagraph paragraph : para) {
-//            String paragraphText = paragraph.getText();
-//            paragraphText = paragraphText.replaceAll(textToReplace,newValue).replaceAll(keyword,"");
-//
-//        }
-//
-//        for (XWPFParagraph p : cell.getParagraphs()) {
-//            for (XWPFRun r : p.getRuns()) {
-//                String text = r.getText(0);
-//                if (text != null && text.contains("needle")) {
-//                    text = text.replace("needle", "haystack");
-//                    r.setText(text,0);
-//                }
-//            }
-//        }
-
+        List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains("<change>" + textToReplace + "<change>")).collect(Collectors.toList());
 
         for (XWPFParagraph paragraph : para) {
-            List<XWPFRun> runs = paragraph.getRuns();
-            if (runs != null) {
-                for (XWPFRun run : runs) {
-                    String text = run.getText(0);
-                    if (text.contains(textToReplace)) {
-                        run.setText(newValue, 0);
-                    }
-                }
-            }
-        }
+            //get the correct text
+            String paragraphText = paragraph.getText();
+            paragraphText = paragraphText.replaceAll(textToReplace, newValue);
 
+            //remove all runs
+            int runs = paragraph.getRuns().size();
+            for (int i = 0; i < runs; i++) {
+                paragraph.removeRun(0);
+            }
+            //add new run
+            XWPFRun newRun = paragraph.createRun();
+            newRun.setText(paragraphText);
+        }
     }
 
     private static List<XWPFTable> findTablesByHeader(String header) {
@@ -135,7 +120,7 @@ public class DocumentGeneratorController {
 //        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
 //        attributes.addFlashAttribute("message", message);
 
-    // iterate through the identifier list provided from front end
+        // iterate through the identifier list provided from front end
         for (int i = 0; i < identifierList.length; i++) {
             List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
             for (int j = 0; j < documentElementsList.size(); j++) {
@@ -181,6 +166,18 @@ public class DocumentGeneratorController {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public static void sanitizeTags() {
+        List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
+        for (XWPFParagraph para : allParas) {
+            List<XWPFRun> runs = para.getRuns();
+            for (XWPFRun run : runs) {
+                String runText = run.getText(0);
+                String newRunText = runText.replaceAll("<change>","");
+                run.setText(newRunText.trim(),0);
             }
         }
     }

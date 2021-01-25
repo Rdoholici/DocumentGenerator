@@ -301,9 +301,13 @@ public class MainController {
             DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
         }
 
+        //clear tags from document
+        DocumentGeneratorController.sanitizeTags();
+
         DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated,files);
         if(DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
             DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
+
         }
         else {
                 errorFlag = false;
@@ -314,6 +318,8 @@ public class MainController {
         if(message.size()>=1){
             return "redirect:/page1";
         }
+
+
 
         //make document null
         document.clear();
