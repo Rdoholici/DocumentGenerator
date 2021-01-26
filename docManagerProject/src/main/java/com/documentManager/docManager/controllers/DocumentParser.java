@@ -21,7 +21,6 @@ public class DocumentParser {
                 toReturn.add(m.group(1));
             }
         }
-//        document.getParagraphs().stream().filter(p -> p.getText().contains(keyword)).forEach(p -> toReturn.add(p.getText().split("<change>")[1]));
         return toReturn;
     }
 

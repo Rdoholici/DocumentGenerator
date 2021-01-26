@@ -41,4 +41,6 @@ public class Document {
     public void clear() {
         document = new Document();
     }
+
+
 }
