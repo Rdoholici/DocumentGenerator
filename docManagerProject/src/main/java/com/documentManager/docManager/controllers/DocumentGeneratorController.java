@@ -82,7 +82,7 @@ public class DocumentGeneratorController {
         for (XWPFParagraph paragraph : para) {
             //get the correct text
             String paragraphText = paragraph.getText();
-            paragraphText = paragraphText.replaceAll(textToReplace, newValue);
+            paragraphText = paragraphText.replaceAll(textToReplace, newValue.trim());
 
             //remove all runs
             int runs = paragraph.getRuns().size();
