@@ -165,7 +165,7 @@ public class DocumentGeneratorController {
         }
     }
 
-    private static void sanitizeKeywords() {
+    public static void sanitizeKeywords() {
         List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
         for (XWPFParagraph paragraph : allParas) {
             List<XWPFRun> runs = paragraph.getRuns();
@@ -181,17 +181,18 @@ public class DocumentGeneratorController {
                 boolean hasMid = runs.get(i + 1).getText(0).contains("change");
                 //if yes to both check if next run has >
                 boolean hasEnd = runs.get(i + 2).getText(0).contains(">");
+
                 //if yes to all set text to first run to be same but without last < | set text to middle run to be nothing | set text to last run to be same but without first <
                 if (hasBegin && hasMid && hasEnd) {
                     String beginText = runs.get(i).getText(0);
                     beginText = beginText.substring(0, beginText.lastIndexOf("<"));
-                    runs.get(i).setText(beginText);
+                    runs.get(i).setText(beginText, 0);
 
                     String endText = runs.get(i + 2).getText(0);
                     endText = endText.substring(1);
-                    runs.get(i + 2).setText(endText);
+                    runs.get(i + 2).setText(endText, 0);
 
-                    runs.get(i + 1).setText("");
+                    runs.get(i + 1).setText("", 0);
                 }
             }
         }
@@ -221,7 +222,7 @@ public class DocumentGeneratorController {
                 for (XWPFRun run : runs) {
                     String text = run.getText(0);
                     if (text.contains(textToReplace)) {
-                        run.setText(newValue, 0);
+                        run.setText(newValue.trim(), 0);
                     }
                 }
             }

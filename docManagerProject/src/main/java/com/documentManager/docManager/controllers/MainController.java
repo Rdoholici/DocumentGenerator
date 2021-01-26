@@ -49,7 +49,7 @@ public class MainController {
     static boolean errorFlag = true;
 
 
-    Set<String> message= new HashSet<String>();
+    Set<String> message = new HashSet<String>();
 
     int progressBar = 0;
 
@@ -83,7 +83,7 @@ public class MainController {
     }
 
     @GetMapping("/page1")
-        public String showPage(Model model,@ModelAttribute("userInput") UserInput userInput,RedirectAttributes attributes) {
+    public String showPage(Model model, @ModelAttribute("userInput") UserInput userInput, RedirectAttributes attributes) {
 
 
         progressBar = 50;
@@ -96,7 +96,7 @@ public class MainController {
         model.addAttribute("userInput", new UserInput());
 
         return "page1";
-        }
+    }
 
 
     @PostMapping("/page1") //for new ter from user
@@ -143,7 +143,7 @@ public class MainController {
     }
 
     @GetMapping("/existingTemplate")
-    public String showPageExTemplate(Model model,@ModelAttribute("userInput") UserInput userInput,RedirectAttributes attributes) {
+    public String showPageExTemplate(Model model, @ModelAttribute("userInput") UserInput userInput, RedirectAttributes attributes) {
 
 
         progressBar = 50;
@@ -160,13 +160,13 @@ public class MainController {
 
 
     @PostMapping("/existingTemplate") //for new ter from user
-    public String uploadFileExTemplate(@ModelAttribute("documentType") DocumentType documentType,RedirectAttributes attributes, Model model) throws IOException {
+    public String uploadFileExTemplate(@ModelAttribute("documentType") DocumentType documentType, RedirectAttributes attributes, Model model) throws IOException {
 
         File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
         File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
 
-        for(int i = 0; i< Objects.requireNonNull(listOfFiles).length; i++){
-            if(documentType.getName().equals(listOfFiles[i].getName())) {
+        for (int i = 0; i < Objects.requireNonNull(listOfFiles).length; i++) {
+            if (documentType.getName().equals(listOfFiles[i].getName())) {
                 templPath = Paths.get(TEMPL_UPLOAD_DIR + listOfFiles[i].getName());
                 document.setPath(TEMPL_UPLOAD_DIR + listOfFiles[i].getName());
             }
@@ -185,8 +185,8 @@ public class MainController {
 
         errorFlag = true;
         progressBar = 50;
-        model.addAttribute("progressBar",progressBar);
-        model.addAttribute("files",listOfFiles); // for showing the user the list of templates we have
+        model.addAttribute("progressBar", progressBar);
+        model.addAttribute("files", listOfFiles); // for showing the user the list of templates we have
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", document.getKeywords());
         model.addAttribute("tableTitles", document.getTableTitles());
@@ -198,7 +198,7 @@ public class MainController {
     }
 
     @GetMapping(value = "/result")
-    public String showResult(Model model,@ModelAttribute("userInput") UserInput userInput) {
+    public String showResult(Model model, @ModelAttribute("userInput") UserInput userInput) {
         errorFlag = true;
         UserKeyword userKeyword = new UserKeyword();
         model.addAttribute("userKeyword", userKeyword);
@@ -220,8 +220,9 @@ public class MainController {
 
         return "result";
     }
+
     @PostMapping(value = "/result")
-    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model,RedirectAttributes attributes) throws Exception {
+    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model, RedirectAttributes attributes) throws Exception {
         message.clear();
         errorFlag = true;
         String result = "result";
@@ -231,7 +232,7 @@ public class MainController {
         //iterate keywords and populate document object
 //        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
 
-        if(userInput.getKeywordsCommaSeparated()!=null) {
+        if (userInput.getKeywordsCommaSeparated() != null) {
             String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",", ", ").split(",");
             //for keyword user input validation. check if all the keywords were added
             String[] removedNull = Arrays.stream(keywordsCommaSeparated)
@@ -277,7 +278,7 @@ public class MainController {
             String filepath = null;
 
             // case excel is valid, ignore api
-            if(!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
+            if (!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
                 if ((FileController.verifyFile(files[i], ".xls") || FileController.verifyFile(files[i], ".xlsx"))) {
                     filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
                     //case excel is invalid, use api
@@ -291,8 +292,6 @@ public class MainController {
             document.addDT(dt);
         }
 
-
-
         //create document
         DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
@@ -302,30 +301,31 @@ public class MainController {
         }
 
         //clear tags from document
-        DocumentGeneratorController.sanitizeTags();
+        DocumentGeneratorController.sanitizeKeywords();
 
-        DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated,files);
-        if(DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
+        DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
+        if (DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
             DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
-        }
-        else {
-                errorFlag = false;
-                message.add("Number of columns from the excel(s) are different than from the word table(s)");
-                attributes.addFlashAttribute("message", message);
+        } else {
+            errorFlag = false;
+            message.add("Number of columns from the excel(s) are different than from the word table(s)");
+            attributes.addFlashAttribute("message", message);
         }
 
-        if(message.size()>=1){
+        if (message.size() >= 1) {
             return "redirect:/page1";
         }
-
-
 
         //make document null
         document.clear();
 
         //delete files
-        FileController.deleteTempFiles();
+        try {
+            FileController.deleteTempFiles();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //serve file to user
         File folder = new File(RESULT); // for showing the user the list of templates we have
