@@ -10,6 +10,7 @@ import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -64,7 +65,7 @@ public class DocumentGeneratorController {
         borders.addNewLeft().setVal(STBorder.SINGLE);
         borders.addNewRight().setVal(STBorder.SINGLE);
         borders.addNewTop().setVal(STBorder.SINGLE);
-    //also inner borders
+        //also inner borders
         borders.addNewInsideH().setVal(STBorder.SINGLE);
         borders.addNewInsideV().setVal(STBorder.SINGLE);
     }
@@ -77,6 +78,22 @@ public class DocumentGeneratorController {
 
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
         List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains(textToReplace)).collect(Collectors.toList());
+
+//        for (XWPFParagraph paragraph : para) {
+//            //get the correct text
+//            String paragraphText = paragraph.getText();
+//            paragraphText = paragraphText.replaceAll(textToReplace, newValue).replaceAll("<change>", "");
+//
+//            //remove all runs
+//            int runs = paragraph.getRuns().size();
+//            for (int i = 0; i < runs; i++) {
+//                paragraph.removeRun(0);
+//            }
+//            //add new run
+//            XWPFRun newRun = paragraph.createRun();
+//            newRun.setText(paragraphText);
+//        }
+
         for (XWPFParagraph paragraph : para) {
             List<XWPFRun> runs = paragraph.getRuns();
             if (runs != null) {
@@ -88,7 +105,39 @@ public class DocumentGeneratorController {
                 }
             }
         }
+        sanitizeKeywords();
+    }
 
+    private static void sanitizeKeywords() {
+        List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
+        for (XWPFParagraph paragraph : allParas) {
+            List<XWPFRun> runs = paragraph.getRuns();
+            for (int i = 0; i < runs.size(); i++) {
+                //check if i is valid in range
+                if (i + 1 > runs.size() || i + 2 >= runs.size()) {
+                    continue;
+                }
+
+                //check if this run has <
+                boolean hasBegin = runs.get(i).getText(0).contains("<");
+                //if yes check if next run has change
+                boolean hasMid = runs.get(i + 1).getText(0).contains("change");
+                //if yes to both check if next run has >
+                boolean hasEnd = runs.get(i + 2).getText(0).contains(">");
+                //if yes to all set text to first run to be same but without last < | set text to middle run to be nothing | set text to last run to be same but without first <
+                if (hasBegin && hasMid && hasEnd) {
+                    String beginText = runs.get(i).getText(0);
+                    beginText = beginText.substring(0, beginText.lastIndexOf("<"));
+                    runs.get(i).setText(beginText);
+
+                    String endText = runs.get(i + 2).getText(0);
+                    endText = endText.substring(1);
+                    runs.get(i + 2).setText(endText);
+
+                    runs.get(i + 1).setText("");
+                }
+            }
+        }
     }
 
     private static List<XWPFTable> findTablesByHeader(String header) {
@@ -110,26 +159,25 @@ public class DocumentGeneratorController {
     }
 
 
-    public static void dataBindingIdExcel(String[] identifierList , MultipartFile[] userExcelFiles) throws Exception {
+    public static void dataBindingIdExcel(String[] identifierList, MultipartFile[] userExcelFiles) throws Exception {
 
 //        errorFlag = false;
 //        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
 //        attributes.addFlashAttribute("message", message);
 
 
-
-        for(int i=0;i<identifierList.length;i++){
+        for (int i = 0; i < identifierList.length; i++) {
             List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
-            for(int j=0;j<documentElementsList.size();j++){
-                if(documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
+            for (int j = 0; j < documentElementsList.size(); j++) {
+                if (documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
                         ((XWPFParagraph) documentElementsList.get(j)).getText().equals(identifierList[i])) {
 
-                    XWPFTable xwpfTable = (XWPFTable) documentElementsList.get(j+1);
+                    XWPFTable xwpfTable = (XWPFTable) documentElementsList.get(j + 1);
                     FileInputStream fileInputStream = null;
 
                     try {
 
-                        if(userExcelFiles[i].getSize()!=0) {
+                        if (userExcelFiles[i].getSize() != 0) {
 
 //                            System.out.println("nu e null");
                             String TABLE_UPLOAD_DIR = "./uploads/tables/";
@@ -145,19 +193,17 @@ public class DocumentGeneratorController {
                             //number of columns from excel document
                             int noOfExcelColumns = sheet.getRow(0).getPhysicalNumberOfCells();
 
-                            if(noOfWordColumns==noOfExcelColumns) {
+                            if (noOfWordColumns == noOfExcelColumns) {
                                 setNumberOfColWordExcelDiffer(true);
                                 addExcelRowsToTable(xwpfTable, workbook);
-                            }
-                            else {
+                            } else {
                                 setNumberOfColWordExcelDiffer(false);
                             }
-                        }
-                        else {
+                        } else {
                             System.out.println("e null");
                         }
                     } finally {
-                        if(fileInputStream!=null){
+                        if (fileInputStream != null) {
                             fileInputStream.close();
                         }
                     }

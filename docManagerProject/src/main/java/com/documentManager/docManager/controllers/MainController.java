@@ -23,10 +23,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-//import jdk.internal.joptsimple.internal.Strings;
-
-//import com.documentManager.docManager.models.UserKeyword;
-
 @Controller
 @ControllerAdvice
 public class MainController {
@@ -49,7 +45,7 @@ public class MainController {
     static boolean errorFlag = true;
 
 
-    Set<String> message= new HashSet<String>();
+    Set<String> message = new HashSet<String>();
 
     int progressBar = 0;
 
@@ -83,20 +79,16 @@ public class MainController {
     }
 
     @GetMapping("/page1")
-        public String showPage(Model model,@ModelAttribute("userInput") UserInput userInput,RedirectAttributes attributes) {
-
-
+    public String showPage(Model model, @ModelAttribute("userInput") UserInput userInput, RedirectAttributes attributes) {
         progressBar = 50;
-
         model.addAttribute("progressBar", progressBar);
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", document.getKeywords());
         model.addAttribute("tableTitles", document.getTableTitles());
         model.addAttribute("tableHeaders", document.getTableTitles());
         model.addAttribute("userInput", new UserInput());
-
         return "page1";
-        }
+    }
 
 
     @PostMapping("/page1") //for new ter from user
@@ -107,7 +99,7 @@ public class MainController {
             attributes.addFlashAttribute("message", message);
             return "redirect:/";
         }
-//TODO get user input other than file
+
         // save the file on the local file system
         //TODO - save file to disk if not existent, or save to database?
         String filePath = FileController.saveFile(file, USER_UPLOAD_DIR);
@@ -117,7 +109,6 @@ public class MainController {
 
         // normalize the file path
         document.setPath(USER_UPLOAD_DIR + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
-
         XWPFDocument xwpfDocument = FileController.convertWordToXWPFDocument(filePath);
 
         //get keywords and store them
@@ -126,7 +117,6 @@ public class MainController {
         //get table headers and store them
         document.setTables(DocumentParser.getTableHeaders(xwpfDocument));
         document.setTableTitles(DocumentParser.getTableTitles(xwpfDocument)); //added by me
-
 
         progressBar = 50;
         errorFlag = true;
@@ -137,36 +127,29 @@ public class MainController {
         model.addAttribute("tableTitles", document.getTableTitles());
         model.addAttribute("tableHeaders", document.getTableTitles());
         model.addAttribute("userInput", new UserInput());
-
-
         return "page1";
     }
 
     @GetMapping("/existingTemplate")
-    public String showPageExTemplate(Model model,@ModelAttribute("userInput") UserInput userInput,RedirectAttributes attributes) {
-
-
+    public String showPageExTemplate(Model model, @ModelAttribute("userInput") UserInput userInput, RedirectAttributes attributes) {
         progressBar = 50;
-
         model.addAttribute("progressBar", progressBar);
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", document.getKeywords());
         model.addAttribute("tableTitles", document.getTableTitles());
         model.addAttribute("tableHeaders", document.getTableTitles());
         model.addAttribute("userInput", new UserInput());
-
         return "extempresult";
     }
 
 
     @PostMapping("/existingTemplate") //for new ter from user
-    public String uploadFileExTemplate(@ModelAttribute("documentType") DocumentType documentType,RedirectAttributes attributes, Model model) throws IOException {
-
+    public String uploadFileExTemplate(@ModelAttribute("documentType") DocumentType documentType, RedirectAttributes attributes, Model model) throws IOException {
         File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
         File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
 
-        for(int i = 0; i< Objects.requireNonNull(listOfFiles).length; i++){
-            if(documentType.getName().equals(listOfFiles[i].getName())) {
+        for (int i = 0; i < Objects.requireNonNull(listOfFiles).length; i++) {
+            if (documentType.getName().equals(listOfFiles[i].getName())) {
                 templPath = Paths.get(TEMPL_UPLOAD_DIR + listOfFiles[i].getName());
                 document.setPath(TEMPL_UPLOAD_DIR + listOfFiles[i].getName());
             }
@@ -185,20 +168,18 @@ public class MainController {
 
         errorFlag = true;
         progressBar = 50;
-        model.addAttribute("progressBar",progressBar);
-        model.addAttribute("files",listOfFiles); // for showing the user the list of templates we have
+        model.addAttribute("progressBar", progressBar);
+        model.addAttribute("files", listOfFiles); // for showing the user the list of templates we have
         model.addAttribute("errorFlag", errorFlag);
         model.addAttribute("keywords", document.getKeywords());
         model.addAttribute("tableTitles", document.getTableTitles());
         model.addAttribute("tableHeaders", document.getTableTitles());
         model.addAttribute("userInput", new UserInput());
-
-
         return "extempresult";
     }
 
     @GetMapping(value = "/result")
-    public String showResult(Model model,@ModelAttribute("userInput") UserInput userInput) {
+    public String showResult(Model model, @ModelAttribute("userInput") UserInput userInput) {
         errorFlag = true;
         UserKeyword userKeyword = new UserKeyword();
         model.addAttribute("userKeyword", userKeyword);
@@ -211,17 +192,11 @@ public class MainController {
                         value != null && value.length() > 0
                 )
                 .toArray(size -> new String[size]);
-
-
-//        if(document.getKeywords().toArray().length!= removedNull.length){
-//            model.addAttribute("message", "You need to enter all the keywords!");
-//            return "redirect:/page1";
-//        }
-
         return "result";
     }
+
     @PostMapping(value = "/result")
-    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model,RedirectAttributes attributes) throws Exception {
+    public String submitForm(@ModelAttribute("userInput") UserInput userInput, MultipartFile[] files, Model model, RedirectAttributes attributes) throws Exception {
         message.clear();
         errorFlag = true;
         String result = "result";
@@ -230,7 +205,7 @@ public class MainController {
 
         //iterate keywords and populate document object
 //        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().split(",");
-        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",",", ").split(",");
+        String[] keywordsCommaSeparated = userInput.getKeywordsCommaSeparated().replace(",", ", ").split(",");
         //for keyword user input validation. check if all the keywords were added
         String[] removedNull = Arrays.stream(keywordsCommaSeparated)
                 .filter(value ->
@@ -238,31 +213,18 @@ public class MainController {
                 )
                 .toArray(size -> new String[size]);
 
-//
-//if(document.getKeywords().toArray().length!= removedNull.length){
-//    errorFlag = false;
-//    attributes.addFlashAttribute("message", "You didn't insert all the keywords");
-//    attributes.addFlashAttribute("errorFlag", errorFlag);
-//    return "redirect:/page1";
-//
-////    if(document.getKeywords().size()!=userInput.getKeywordsCommaSeparated().split(",").length){
-////
-////    }
-//
-//}
+        for (int i = 0; i < keywordsCommaSeparated.length; i++) {
 
-for(int i=0;i<keywordsCommaSeparated.length;i++){
-
-    if(keywordsCommaSeparated[i].trim().equals("")){
-        errorFlag = false;
-        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
-        attributes.addFlashAttribute("message", message);
-    }
-}
-
-            for (int i = 0; i < keywordsCommaSeparated.length; i++) {
-                document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
+            if (keywordsCommaSeparated[i].trim().equals("")) {
+                errorFlag = false;
+                message.add("You didnt insert any value for " + document.getKeywords().toArray()[i]);
+                attributes.addFlashAttribute("message", message);
             }
+        }
+
+        for (int i = 0; i < keywordsCommaSeparated.length; i++) {
+            document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
+        }
 
         String[] tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
         userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
@@ -274,7 +236,7 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
             String filepath = null;
 
             // case excel is valid, ignore api
-            if(!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
+            if (!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
                 if ((FileController.verifyFile(files[i], ".xls") || FileController.verifyFile(files[i], ".xlsx"))) {
                     filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
                     //case excel is invalid, use api
@@ -289,7 +251,6 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
         }
 
 
-
         //create document
         DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
@@ -298,17 +259,16 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
             DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
         }
 
-        DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated,files);
-        if(DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
+//        DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
+        if (DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
             DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
-        }
-        else {
-                errorFlag = false;
-                message.add("Number of columns from the excel(s) are different than from the word table(s)");
-                attributes.addFlashAttribute("message", message);
+        } else {
+            errorFlag = false;
+            message.add("Number of columns from the excel(s) are different than from the word table(s)");
+            attributes.addFlashAttribute("message", message);
         }
 
-        if(message.size()>=1){
+        if (message.size() >= 1) {
             return "redirect:/page1";
         }
 
@@ -316,7 +276,11 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
         document.clear();
 
         //delete files
-        FileController.deleteTempFiles();
+        try {
+            FileController.deleteTempFiles();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //serve file to user
         File folder = new File(RESULT); // for showing the user the list of templates we have
@@ -346,8 +310,6 @@ for(int i=0;i<keywordsCommaSeparated.length;i++){
             e.printStackTrace();
         }
     }
-
-
 }
 
 

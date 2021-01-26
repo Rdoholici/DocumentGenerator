@@ -9,12 +9,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+import java.util.regex.*;
 public class DocumentParser {
 
     public static Set<String> getKeyWords(XWPFDocument document, String keyword) {
         Set<String> toReturn = new HashSet<>();
-        document.getParagraphs().stream().filter(p -> p.getText().contains(keyword)).forEach(p -> toReturn.add(p.getText().split("<change>")[1]));
+        for (XWPFParagraph xwpfParagraph : document.getParagraphs()) {
+            Pattern p = Pattern.compile(keyword + "(.*?)" + keyword, Pattern.DOTALL);
+            Matcher m = p.matcher(xwpfParagraph.getText());
+            while (m.find()) {
+                toReturn.add(m.group(1));
+            }
+        }
+//        document.getParagraphs().stream().filter(p -> p.getText().contains(keyword)).forEach(p -> toReturn.add(p.getText().split("<change>")[1]));
         return toReturn;
     }
 
