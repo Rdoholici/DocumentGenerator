@@ -1,7 +1,9 @@
 package com.documentManager.docManager.controllers;
 
 import com.documentManager.docManager.models.*;
+import com.documentManager.docManager.services.JiraService;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -18,10 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 //import jdk.internal.joptsimple.internal.Strings;
 
@@ -53,6 +52,8 @@ public class MainController {
 
     int progressBar = 0;
 
+    @Autowired
+    JiraService jiraService;
 
     //Check file size:
     //StandardServletMultipartResolver
@@ -272,6 +273,8 @@ public class MainController {
         userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
         String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+        //create document
+        DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
         for (int i = 0; i < document.getTableTitles().size(); i++) {
             String filepath = null;
@@ -280,19 +283,26 @@ public class MainController {
             if (!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
                 if ((FileController.verifyFile(files[i], ".xls") || FileController.verifyFile(files[i], ".xlsx"))) {
                     filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
-                    //case excel is invalid, use api
+                    //case excel is invalid
                 } else {
                     errorFlag = false;
                     message.add(files[i].getOriginalFilename() + " is not a valid excel file");
                     attributes.addFlashAttribute("message", message);
                 }
+                //no excels and apis, or no excels and no apis
+            } else {
+                if (!apisCommaSeparated[i].trim().equals("")) {
+                    switch (apisCommaSeparated[i].trim()) {
+                        case "jira":
+                            JiraTicket[] ticketList = jiraService.getJiraTicketsById("1234"); //nar id = 1234
+                            DocumentGeneratorController.addExcelRowsToTableFromApi(tableTitleCommaSeparated[i],ticketList);
+                            break;
+                    }
+                }
             }
             DocumentTable dt = new DocumentTable(document.getTables().get(i), apisCommaSeparated[i], filepath);
             document.addDT(dt);
         }
-
-        //create document
-        DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
         DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
         if (!DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
@@ -309,8 +319,8 @@ public class MainController {
         //iterate all keywords and replace them
         for (String key : document.getCompletedKeywords().keySet()) {
 //            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
-            DocumentGeneratorController.replaceKeywordsAspose(key, document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
-            DocumentGeneratorController.replaceKeywordsAspose("<change>", "","./uploads/results/modificat.docx");
+            DocumentGeneratorController.replaceKeywordsAspose("<change>" + key + "<change>", document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
+//            DocumentGeneratorController.replaceKeywordsAspose("<change>", "", "./uploads/results/modificat.docx");
         }
 
         //make document null

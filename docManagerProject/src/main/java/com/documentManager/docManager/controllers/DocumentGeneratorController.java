@@ -4,6 +4,7 @@ import com.aspose.words.FindReplaceDirection;
 import com.aspose.words.FindReplaceOptions;
 import com.documentManager.docManager.models.Document;
 import com.documentManager.docManager.models.DocumentTable;
+import com.documentManager.docManager.models.JiraTicket;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -40,6 +41,47 @@ public class DocumentGeneratorController {
         xwpfDocument.write(out);
         out.close();
         xwpfDocument.close();
+    }
+
+    public static void addExcelRowsToTableFromApi(String tableTitle, JiraTicket[] tickets) {
+        List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
+        XWPFTable xwpfTable = null;
+        for (int j = 0; j < documentElementsList.size(); j++) {
+            if (tableTitle.isEmpty()) {
+                continue;
+            }
+            if (documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
+                    ((XWPFParagraph) documentElementsList.get(j)).getText().equals(tableTitle)) {
+                xwpfTable = (XWPFTable) documentElementsList.get(j + 1);
+            }
+        }
+
+        for (JiraTicket jiraTicket : tickets) {
+            //create row in word table
+            XWPFTableRow row = xwpfTable.createRow();
+            //iterate text from excel and add it
+
+            List<String> rowCells = new ArrayList<>();
+            rowCells.add(jiraTicket.getIssueType());
+            rowCells.add(jiraTicket.getIssue_key());
+            rowCells.add(jiraTicket.getDescription());
+            rowCells.add(jiraTicket.getPriority());
+            rowCells.add(jiraTicket.getSeverity());
+            rowCells.add(jiraTicket.getStatus());
+
+            for (int i = 0; i < rowCells.size(); i++) {
+                row.getCell(i).setText(rowCells.get(i));
+            }
+        }
+
+        CTTblBorders borders = xwpfTable.getCTTbl().getTblPr().addNewTblBorders();
+        borders.addNewBottom().setVal(STBorder.SINGLE);
+        borders.addNewLeft().setVal(STBorder.SINGLE);
+        borders.addNewRight().setVal(STBorder.SINGLE);
+        borders.addNewTop().setVal(STBorder.SINGLE);
+        //also inner borders
+        borders.addNewInsideH().setVal(STBorder.SINGLE);
+        borders.addNewInsideV().setVal(STBorder.SINGLE);
     }
 
     public static void addExcelRowsToTable(XWPFTable xwpfTable, Workbook workbook) throws Exception {
@@ -114,7 +156,6 @@ public class DocumentGeneratorController {
                     FileInputStream fileInputStream = null;
 
                     try {
-
                         if (userExcelFiles[i].getSize() != 0) {
                             String TABLE_UPLOAD_DIR = "./uploads/tables/";
                             String filePath = FileController.saveFile(userExcelFiles[i], TABLE_UPLOAD_DIR);
