@@ -91,6 +91,6 @@ public class TemplateController {
         DocumentGeneratorController.replaceTextInAllParagraphs("RELEASE_DATE", confluenceService.getConfluenceReleaseInfo(id).getReleaseDate());
         DocumentGeneratorController.replaceTextInAllParagraphs("REGION", confluenceService.getConfluenceReleaseInfo(id).getRegion());
 
-        DocumentGeneratorController.saveDocument("modified.docx");
+//        DocumentGeneratorController.saveDocument("modified.docx");
     }
 }

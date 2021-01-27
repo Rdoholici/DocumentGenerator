@@ -274,7 +274,6 @@ public class MainController {
         String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
 
         for (int i = 0; i < document.getTableTitles().size(); i++) {
-            //TODO make excel object with name, api true/fasle , file
             String filepath = null;
 
             // case excel is valid, ignore api
@@ -295,19 +294,8 @@ public class MainController {
         //create document
         DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
-        //iterate all keywords and replace them
-        for (String key : document.getCompletedKeywords().keySet()) {
-            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
-        }
-
-        //clear tags from document
-        DocumentGeneratorController.sanitizeKeywords();
-
         DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
-        if (DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
-            DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
-
-        } else {
+        if (!DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
             errorFlag = false;
             message.add("Number of columns from the excel(s) are different than from the word table(s)");
             attributes.addFlashAttribute("message", message);
@@ -315,6 +303,14 @@ public class MainController {
 
         if (message.size() >= 1) {
             return "redirect:/page1";
+        }
+
+        DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
+        //iterate all keywords and replace them
+        for (String key : document.getCompletedKeywords().keySet()) {
+//            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
+            DocumentGeneratorController.replaceKeywordsAspose(key, document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
+            DocumentGeneratorController.replaceKeywordsAspose("<change>", "","./uploads/results/modificat.docx");
         }
 
         //make document null
@@ -355,8 +351,6 @@ public class MainController {
             e.printStackTrace();
         }
     }
-
-
 }
 
 

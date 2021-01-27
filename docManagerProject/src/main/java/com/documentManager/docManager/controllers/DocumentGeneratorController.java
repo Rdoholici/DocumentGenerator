@@ -1,5 +1,7 @@
 package com.documentManager.docManager.controllers;
 
+import com.aspose.words.FindReplaceDirection;
+import com.aspose.words.FindReplaceOptions;
 import com.documentManager.docManager.models.Document;
 import com.documentManager.docManager.models.DocumentTable;
 import org.apache.poi.ss.usermodel.Cell;
@@ -77,7 +79,6 @@ public class DocumentGeneratorController {
     }
 
 
-
     private static List<XWPFTable> findTablesByHeader(String header) {
         return xwpfDocument.getTables().stream().filter(
                 table -> table.getText().replace("\t", "").replace("\n", "").replace(" ", "")
@@ -99,10 +100,6 @@ public class DocumentGeneratorController {
 
     public static void dataBindingIdExcel(String[] identifierList, MultipartFile[] userExcelFiles) throws Exception {
 
-//        errorFlag = false;
-//        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
-//        attributes.addFlashAttribute("message", message);
-
         // iterate through the identifier list provided from front end
         for (int i = 0; i < identifierList.length; i++) {
             List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
@@ -119,8 +116,6 @@ public class DocumentGeneratorController {
                     try {
 
                         if (userExcelFiles[i].getSize() != 0) {
-
-//                            System.out.println("nu e null");
                             String TABLE_UPLOAD_DIR = "./uploads/tables/";
                             String filePath = FileController.saveFile(userExcelFiles[i], TABLE_UPLOAD_DIR);
                             File workbookFile = new File(filePath);
@@ -159,8 +154,8 @@ public class DocumentGeneratorController {
             List<XWPFRun> runs = para.getRuns();
             for (XWPFRun run : runs) {
                 String runText = run.getText(0);
-                String newRunText = runText.replaceAll("<change>","");
-                run.setText(newRunText.trim(),0);
+                String newRunText = runText.replaceAll("<change>", "");
+                run.setText(newRunText.trim(), 0);
             }
         }
     }
@@ -196,6 +191,16 @@ public class DocumentGeneratorController {
                 }
             }
         }
+    }
+
+    public static void replaceKeywordsAspose(String textToReplace, String newValue, String path) throws Exception {
+        com.aspose.words.Document doc = new com.aspose.words.Document(path);
+
+        // Find and replace text in the document
+        doc.getRange().replace(textToReplace, newValue, new FindReplaceOptions(FindReplaceDirection.FORWARD));
+
+        // Save the Word document
+        doc.save(path);
     }
 
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
