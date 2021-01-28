@@ -247,31 +247,32 @@ public class DocumentGeneratorController {
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
         List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains("<change>" + textToReplace + "<change>")).collect(Collectors.toList());
 
-//        for (XWPFParagraph paragraph : para) {
-//            //get the correct text
-//            String paragraphText = paragraph.getText();
-//            paragraphText = paragraphText.replaceAll(textToReplace, newValue.trim());
-//
-//            //remove all runs
-//            int runs = paragraph.getRuns().size();
-//            for (int i = 0; i < runs; i++) {
-//                paragraph.removeRun(0);
-//            }
-//            //add new run
-//            XWPFRun newRun = paragraph.createRun();
-//            newRun.setText(paragraphText);
-//        }
-
         for (XWPFParagraph paragraph : para) {
-            List<XWPFRun> runs = paragraph.getRuns();
-            if (runs != null) {
-                for (XWPFRun run : runs) {
-                    String text = run.getText(0);
-                    if (text.contains(textToReplace)) {
-                        run.setText(newValue.trim(), 0);
-                    }
-                }
+            //get the correct text
+            String paragraphText = paragraph.getText();
+
+            paragraphText = paragraphText.replaceAll("<change>" + textToReplace + "<change>", newValue.trim());
+
+            //remove all runs
+            int runs = paragraph.getRuns().size();
+            for (int i = 0; i < runs; i++) {
+                paragraph.removeRun(0);
             }
+            //add new run
+            XWPFRun newRun = paragraph.createRun();
+            newRun.setText(paragraphText);
         }
+
+//        for (XWPFParagraph paragraph : para) {
+//            List<XWPFRun> runs = paragraph.getRuns();
+//            if (runs != null) {
+//                for (XWPFRun run : runs) {
+//                    String text = run.getText(0);
+//                    if (text.contains(textToReplace)) {
+//                        run.setText(newValue.trim(), 0);
+//                    }
+//                }
+//            }
+//        }
     }
 }

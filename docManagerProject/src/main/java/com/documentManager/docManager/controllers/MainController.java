@@ -242,20 +242,6 @@ public class MainController {
                     )
                     .toArray(size -> new String[size]);
 
-
-//
-//if(document.getKeywords().toArray().length!= removedNull.length){
-//    errorFlag = false;
-//    attributes.addFlashAttribute("message", "You didn't insert all the keywords");
-//    attributes.addFlashAttribute("errorFlag", errorFlag);
-//    return "redirect:/page1";
-//
-////    if(document.getKeywords().size()!=userInput.getKeywordsCommaSeparated().split(",").length){
-////
-////    }
-//
-//}
-
             for (int i = 0; i < keywordsCommaSeparated.length; i++) {
 
                 if (keywordsCommaSeparated[i].trim().equals("")) {
@@ -269,10 +255,17 @@ public class MainController {
                 document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
             }
         }
-        String[] tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
-        userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
-        String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+        String[] tableTitleCommaSeparated = new String[0];
+        String[] apisCommaSeparated = new String[0];
+        try {
+            tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
+            userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
+            apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+        } catch (Exception e) {
+            System.out.println("No tables");
+        }
+
         //create document
         DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
@@ -302,6 +295,7 @@ public class MainController {
             }
             DocumentTable dt = new DocumentTable(document.getTables().get(i), apisCommaSeparated[i], filepath);
             document.addDT(dt);
+            //0733923215
         }
 
         DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
@@ -314,13 +308,15 @@ public class MainController {
         if (message.size() >= 1) {
             return "redirect:/page1";
         }
+//        for (String key : document.getCompletedKeywords().keySet()) {
+//            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
+//        }
 
         DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
-        //iterate all keywords and replace them
+
+        //iterate all keywords and replace them - aspose
         for (String key : document.getCompletedKeywords().keySet()) {
-//            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
             DocumentGeneratorController.replaceKeywordsAspose("<change>" + key + "<change>", document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
-//            DocumentGeneratorController.replaceKeywordsAspose("<change>", "", "./uploads/results/modificat.docx");
         }
 
         //make document null
