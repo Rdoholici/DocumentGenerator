@@ -206,6 +206,14 @@
                     .closest('tr')
                     .find('input.hiddenInput').val(col1);
             });
+            $(".apiField").on('click', function () {
+                var currentRow = $(this).closest("tr");
+                var col1 = currentRow.find("td:eq(0)").html();
+                $(this)
+                    .closest('tr')
+                    .find('input.hiddenInput').val(col1);
+            });
+
         });
     </script>
     <script>
@@ -224,6 +232,7 @@
             });
         });
     </script>
+
 </head>
 <body>
 
@@ -284,7 +293,7 @@
                     <tr th:each="table : ${tableTitles}">
                         <td th:text="${table}"></td>
                         <td>
-                            <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"
+                            <input type="text" class="form-control apiField" id="formGroupExampleInput3" placeholder="Api key"
                                    th:field="*{apisCommaSeparated}">
                         </td>
                         <td>

@@ -1,6 +1,7 @@
 package com.documentManager.docManager.controllers;
 
 import com.documentManager.docManager.models.*;
+import com.documentManager.docManager.services.JiraService;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,10 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 //import jdk.internal.joptsimple.internal.Strings;
 
@@ -49,9 +47,11 @@ public class MainController {
     //variables for html manipulation and errors
     static boolean errorFlag = true;
     Set<String> message = new HashSet<String>();
+
     int progressBar = 0;
 
-
+    @Autowired
+    JiraService jiraService;
 
     //Check file size:
     //StandardServletMultipartResolver
@@ -83,9 +83,10 @@ public class MainController {
     }
 
     @GetMapping("/login")
-    public String login(){
+    public String login() {
         return "login";
     }
+
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new User());
@@ -105,11 +106,10 @@ public class MainController {
         try {
             userRepo.save(user);
             result = "register_success";
+        } catch (DataIntegrityViolationException e) {
+            errorMessage = ("user already exists");
         }
-        catch (DataIntegrityViolationException e) {
-            errorMessage =("user already exists");
-        }
-        model.addAttribute("errorMessage",errorMessage);
+        model.addAttribute("errorMessage", errorMessage);
         return result;
 
     }
@@ -130,7 +130,7 @@ public class MainController {
         model.addAttribute("documentType", documentType);
         model.addAttribute("errorFlag", false);
         model.addAttribute("listType", listOfFiles);
-        model.addAttribute("files",listOfFiles);
+        model.addAttribute("files", listOfFiles);
         return "templates_page";
     }
 
@@ -154,9 +154,9 @@ public class MainController {
     @PostMapping("/page1") //for new ter from user
     public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes, Model model) throws IOException {
 
-        model.addAttribute("files",listOfFiles); // for showing the user the list of templates we have
+        model.addAttribute("files", listOfFiles); // for showing the user the list of templates we have
         // check file to exist and be docx type
-        if (!FileController.verifyFile(file, ".doc")||!FileController.verifyFile(file, ".docx")) {
+        if (!FileController.verifyFile(file, ".doc") || !FileController.verifyFile(file, ".docx")) {
             message.clear();
             message.add("Please select a valid docx file to upload.");
             attributes.addFlashAttribute("message", message);
@@ -297,20 +297,6 @@ public class MainController {
                     )
                     .toArray(size -> new String[size]);
 
-
-//
-//if(document.getKeywords().toArray().length!= removedNull.length){
-//    errorFlag = false;
-//    attributes.addFlashAttribute("message", "You didn't insert all the keywords");
-//    attributes.addFlashAttribute("errorFlag", errorFlag);
-//    return "redirect:/page1";
-//
-////    if(document.getKeywords().size()!=userInput.getKeywordsCommaSeparated().split(",").length){
-////
-////    }
-//
-//}
-
             for (int i = 0; i < keywordsCommaSeparated.length; i++) {
 
                 if (keywordsCommaSeparated[i].trim().equals("")) {
@@ -324,51 +310,58 @@ public class MainController {
                 document.putKeywordPair(String.valueOf(document.getKeywords().toArray()[i]), keywordsCommaSeparated[i]);
             }
         }
-        String[] tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
-        userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
 
-        String[] apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+        String[] tableTitleCommaSeparated = new String[0];
+        String[] apisCommaSeparated = new String[0];
+        try {
+            tableTitleCommaSeparated = userInput.getTableTitleCommaSeparated().split(",");
+            userInput.setApisCommaSeparated(userInput.getApisCommaSeparated().replace(",", " ,") + " ");
+            apisCommaSeparated = userInput.getApisCommaSeparated().split(",");
+        } catch (Exception e) {
+            System.out.println("No tables");
+        }
+
+        //create document
+        DocumentGeneratorController.setDocumentTemplate(document.getPath());
 
         for (int i = 0; i < document.getTableTitles().size(); i++) {
-            //TODO make excel object with name, api true/fasle , file
             String filepath = null;
 
             // case excel is valid, ignore api
             if (!Objects.requireNonNull(files[i].getOriginalFilename()).isEmpty()) {
                 if ((FileController.verifyFile(files[i], ".xls") || FileController.verifyFile(files[i], ".xlsx"))) {
                     filepath = FileController.saveFile(files[i], TABLE_UPLOAD_DIR);
-                    //case excel is invalid, use api
+                    //case excel is invalid
                 } else {
                     errorFlag = false;
                     message.add(files[i].getOriginalFilename() + " is not a valid excel file");
                     attributes.addFlashAttribute("message", message);
                 }
+                //no excels and apis, or no excels and no apis
+            } else {
+                if (!apisCommaSeparated[i].trim().equals("")) {
+                    switch (apisCommaSeparated[i].trim()) {
+                        case "jira":
+                            JiraTicket[] ticketList = jiraService.getJiraTicketsById("1234"); //nar id = 1234
+                            DocumentGeneratorController.addExcelRowsToTableFromApi(tableTitleCommaSeparated[i], ticketList);
+                            break;
+                    }
+                }
             }
             DocumentTable dt = new DocumentTable(document.getTables().get(i), apisCommaSeparated[i], filepath);
             document.addDT(dt);
+            //0733923215
         }
-
-        //create document
-        DocumentGeneratorController.setDocumentTemplate(document.getPath());
-
-        //iterate all keywords and replace them
-        for (String key : document.getCompletedKeywords().keySet()) {
-            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
-        }
-
-        //clear tags from document
-        DocumentGeneratorController.sanitizeKeywords();
 
         try {
             DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             errorFlag = false;
             message.add("Make sure you are uploading excel files!"); //to be improved for identifying for which file
             attributes.addFlashAttribute("message", message);
         }
         if (DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
-            DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
+//            DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
         } else {
             errorFlag = false;
@@ -378,6 +371,16 @@ public class MainController {
 
         if (message.size() >= 1) {
             return "redirect:/page1";
+        }
+//        for (String key : document.getCompletedKeywords().keySet()) {
+//            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
+//        }
+
+        DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
+
+        //iterate all keywords and replace them - aspose
+        for (String key : document.getCompletedKeywords().keySet()) {
+            DocumentGeneratorController.replaceKeywordsAspose("<change>" + key + "<change>", document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
         }
 
         //make document null

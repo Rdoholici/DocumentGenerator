@@ -1,7 +1,10 @@
 package com.documentManager.docManager.controllers;
 
+import com.aspose.words.FindReplaceDirection;
+import com.aspose.words.FindReplaceOptions;
 import com.documentManager.docManager.models.Document;
 import com.documentManager.docManager.models.DocumentTable;
+import com.documentManager.docManager.models.JiraTicket;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -38,6 +41,47 @@ public class DocumentGeneratorController {
         xwpfDocument.write(out);
         out.close();
         xwpfDocument.close();
+    }
+
+    public static void addExcelRowsToTableFromApi(String tableTitle, JiraTicket[] tickets) {
+        List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
+        XWPFTable xwpfTable = null;
+        for (int j = 0; j < documentElementsList.size(); j++) {
+            if (tableTitle.isEmpty()) {
+                continue;
+            }
+            if (documentElementsList.get(j).getElementType().toString().equals("PARAGRAPH") &&
+                    ((XWPFParagraph) documentElementsList.get(j)).getText().equals(tableTitle)) {
+                xwpfTable = (XWPFTable) documentElementsList.get(j + 1);
+            }
+        }
+
+        for (JiraTicket jiraTicket : tickets) {
+            //create row in word table
+            XWPFTableRow row = xwpfTable.createRow();
+            //iterate text from excel and add it
+
+            List<String> rowCells = new ArrayList<>();
+            rowCells.add(jiraTicket.getIssueType());
+            rowCells.add(jiraTicket.getIssue_key());
+            rowCells.add(jiraTicket.getDescription());
+            rowCells.add(jiraTicket.getPriority());
+            rowCells.add(jiraTicket.getSeverity());
+            rowCells.add(jiraTicket.getStatus());
+
+            for (int i = 0; i < rowCells.size(); i++) {
+                row.getCell(i).setText(rowCells.get(i));
+            }
+        }
+
+        CTTblBorders borders = xwpfTable.getCTTbl().getTblPr().addNewTblBorders();
+        borders.addNewBottom().setVal(STBorder.SINGLE);
+        borders.addNewLeft().setVal(STBorder.SINGLE);
+        borders.addNewRight().setVal(STBorder.SINGLE);
+        borders.addNewTop().setVal(STBorder.SINGLE);
+        //also inner borders
+        borders.addNewInsideH().setVal(STBorder.SINGLE);
+        borders.addNewInsideV().setVal(STBorder.SINGLE);
     }
 
     public static void addExcelRowsToTable(XWPFTable xwpfTable, Workbook workbook) throws Exception {
@@ -77,7 +121,6 @@ public class DocumentGeneratorController {
     }
 
 
-
     private static List<XWPFTable> findTablesByHeader(String header) {
         return xwpfDocument.getTables().stream().filter(
                 table -> table.getText().replace("\t", "").replace("\n", "").replace(" ", "")
@@ -99,10 +142,6 @@ public class DocumentGeneratorController {
 
     public static void dataBindingIdExcel(String[] identifierList, MultipartFile[] userExcelFiles) throws Exception {
 
-//        errorFlag = false;
-//        message.add("You didnt insert any value for "+document.getKeywords().toArray()[i]);
-//        attributes.addFlashAttribute("message", message);
-
         // iterate through the identifier list provided from front end
         for (int i = 0; i < identifierList.length; i++) {
             List<IBodyElement> documentElementsList = xwpfDocument.getBodyElements();
@@ -117,10 +156,7 @@ public class DocumentGeneratorController {
                     FileInputStream fileInputStream = null;
 
                     try {
-
                         if (userExcelFiles[i].getSize() != 0) {
-
-//                            System.out.println("nu e null");
                             String TABLE_UPLOAD_DIR = "./uploads/tables/";
                             String filePath = FileController.saveFile(userExcelFiles[i], TABLE_UPLOAD_DIR);
                             File workbookFile = new File(filePath);
@@ -159,8 +195,8 @@ public class DocumentGeneratorController {
             List<XWPFRun> runs = para.getRuns();
             for (XWPFRun run : runs) {
                 String runText = run.getText(0);
-                String newRunText = runText.replaceAll("<change>","");
-                run.setText(newRunText.trim(),0);
+                String newRunText = runText.replaceAll("<change>", "");
+                run.setText(newRunText.trim(), 0);
             }
         }
     }
@@ -198,34 +234,45 @@ public class DocumentGeneratorController {
         }
     }
 
+    public static void replaceKeywordsAspose(String textToReplace, String newValue, String path) throws Exception {
+        com.aspose.words.Document doc = new com.aspose.words.Document(path);
+
+        // Find and replace text in the document
+        doc.getRange().replace(textToReplace, newValue, new FindReplaceOptions(FindReplaceDirection.FORWARD));
+
+        // Save the Word document
+        doc.save(path);
+    }
+
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
         List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains("<change>" + textToReplace + "<change>")).collect(Collectors.toList());
 
-//        for (XWPFParagraph paragraph : para) {
-//            //get the correct text
-//            String paragraphText = paragraph.getText();
-//            paragraphText = paragraphText.replaceAll(textToReplace, newValue.trim());
-//
-//            //remove all runs
-//            int runs = paragraph.getRuns().size();
-//            for (int i = 0; i < runs; i++) {
-//                paragraph.removeRun(0);
-//            }
-//            //add new run
-//            XWPFRun newRun = paragraph.createRun();
-//            newRun.setText(paragraphText);
-//        }
-
         for (XWPFParagraph paragraph : para) {
-            List<XWPFRun> runs = paragraph.getRuns();
-            if (runs != null) {
-                for (XWPFRun run : runs) {
-                    String text = run.getText(0);
-                    if (text.contains(textToReplace)) {
-                        run.setText(newValue.trim(), 0);
-                    }
-                }
+            //get the correct text
+            String paragraphText = paragraph.getText();
+
+            paragraphText = paragraphText.replaceAll("<change>" + textToReplace + "<change>", newValue.trim());
+
+            //remove all runs
+            int runs = paragraph.getRuns().size();
+            for (int i = 0; i < runs; i++) {
+                paragraph.removeRun(0);
             }
+            //add new run
+            XWPFRun newRun = paragraph.createRun();
+            newRun.setText(paragraphText);
         }
+
+//        for (XWPFParagraph paragraph : para) {
+//            List<XWPFRun> runs = paragraph.getRuns();
+//            if (runs != null) {
+//                for (XWPFRun run : runs) {
+//                    String text = run.getText(0);
+//                    if (text.contains(textToReplace)) {
+//                        run.setText(newValue.trim(), 0);
+//                    }
+//                }
+//            }
+//        }
     }
 }
