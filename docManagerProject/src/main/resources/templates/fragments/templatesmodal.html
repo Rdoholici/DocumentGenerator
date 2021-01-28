@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div th:fragment="templatesmodal">
+<!-- Modal -->
+<div class="modal fade" id="templatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom: 0px solid black">
+                <h5 class="modal-title" id="exampleModalLabel">Our templates</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="table-responsive-sm">
+                    <table class="table table-hover borderless">
+                        <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Size</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="file: ${files}">
+                            <td>
+                                <a th:href="@{'/existing_file/'+${file.getName()}}"><span th:text="${file.getName()}"/></a>
+                            </td>
+                            <td>
+                                <span th:text="${file.length()/1024}"/>KB
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

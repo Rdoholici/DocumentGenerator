@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div th:fragment="howtomodal">
+    <div class="container">
+    <!-- Trigger the modal with a button -->
+
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">DocManager Project</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <ul class="timeline">
+                            <li>
+                                <div class="timeline-badge"><i class="glyphicon glyphicon-check"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">Project Team</h4>
+                                        <p><small class="text-muted"><i class="glyphicon glyphicon-time"></i>6 members</small></p>
+                                        <ul class="list-group">
+                                            <li class="list-group-item active">Catalin Popa - Mentor</li>
+                                            <li class="list-group-item">Razvan Doholici</li>
+                                            <li class="list-group-item">Danut Socol</li>
+                                            <li class="list-group-item">Florin Panianopol</li>
+                                            <li class="list-group-item">Marius Marinescu</li>
+                                            <li class="list-group-item">Catalin Mocanu</li>
+                                        </ul>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <p>
+
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="timeline-inverted">
+                                <div class="timeline-badge warning"><i class="glyphicon glyphicon-credit-card"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">Project Scope</h4>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <p>Automating data population for repetitive documents.</p>
+                                        <p>An example: TER (Test Evaluation Report). This is a document based on a template
+                                            on which data is gathered from different sources: Jira, Confluence, Excel, Word etc.</p>
+                                        <hr>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="timeline-badge danger"><i class="glyphicon glyphicon-credit-card"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">Tools/Technology Used</h4>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <ul>
+                                            <li>Zoom & Whatsapp for communication.</li>
+                                            <li>Intellij Idea for Development.</li>
+                                            <li>Technologies:
+                                                <ul>
+                                                    <li>Java</li>
+                                                    <li>Spring</li>
+                                                    <li>Apache POI</li>
+                                                    <li>Aspose Words</li>
+                                                    <li>MySQL</li>
+                                                    <li>Jquery</li>
+                                                    <li>HTML&CSS</li>
+                                                    <li>Bootstrap</li>
+                                                    <li>Thymeleaf</li>
+                                                </ul>
+                                        </ul>
+                                        <hr>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="timeline-inverted">
+                                <div class="timeline-badge info"><i class="glyphicon glyphicon-credit-card"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">Work Management</h4>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <ul>
+                                            <li>Brainstorming session for defining the tasks.</li>
+                                            <li>Alocated tasks in clusters of 2.</li>
+                                            <li>Defined a meeting calendar for progress check.</li>
+                                            <li>Regular Q&A sessions.</li>
+                                        </ul>
+                                        <hr>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="timeline-badge danger"><i class="glyphicon glyphicon-floppy-disk"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">Testing and bug fixing</h4>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <ul>
+                                            <li>Regression testing.</li>
+                                            <li>Raised bugs and assigned.</li>
+                                        </ul>
+                                        <hr>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="timeline-inverted">
+                                <div class="timeline-badge success"><i class="glyphicon glyphicon-thumbs-up"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">For the future</h4>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <ul>
+                                            <li>There is still a lot to do.</li>
+                                            <li>More scenarios need to be tested with various templates.</li>
+                                            <li>Saving document in the database.</li>
+                                            <li>User Account Management.</li>
+                                        </ul>
+                                        <hr>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

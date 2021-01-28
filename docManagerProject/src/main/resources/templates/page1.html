@@ -4,11 +4,199 @@
     <title>Document Generator</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <style>
+        .timeline {
+            list-style: none;
+            padding: 20px 0 20px;
+            position: relative;
+        }
+        .timeline:before {
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            content: " ";
+            width: 3px;
+            background-color: #eeeeee;
+            left: 50%;
+            margin-left: -1.5px;
+        }
+        .timeline > li {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .timeline > li:before,
+        .timeline > li:after {
+            content: " ";
+            display: table;
+        }
+        .timeline > li:after {
+            clear: both;
+        }
+        .timeline > li:before,
+        .timeline > li:after {
+            content: " ";
+            display: table;
+        }
+        .timeline > li:after {
+            clear: both;
+        }
+        .timeline > li > .timeline-panel {
+            width: 46%;
+            float: left;
+            border: 1px solid #d4d4d4;
+            border-radius: 2px;
+            padding: 20px;
+            position: relative;
+            -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+        }
+        .timeline > li > .timeline-panel:before {
+            position: absolute;
+            top: 26px;
+            right: -15px;
+            display: inline-block;
+            border-top: 15px solid transparent;
+            border-left: 15px solid #ccc;
+            border-right: 0 solid #ccc;
+            border-bottom: 15px solid transparent;
+            content: " ";
+        }
+        .timeline > li > .timeline-panel:after {
+            position: absolute;
+            top: 27px;
+            right: -14px;
+            display: inline-block;
+            border-top: 14px solid transparent;
+            border-left: 14px solid #fff;
+            border-right: 0 solid #fff;
+            border-bottom: 14px solid transparent;
+            content: " ";
+        }
+        .timeline > li > .timeline-badge {
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 1.4em;
+            text-align: center;
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            margin-left: -25px;
+            background-color: #999999;
+            z-index: 100;
+            border-top-right-radius: 50%;
+            border-top-left-radius: 50%;
+            border-bottom-right-radius: 50%;
+            border-bottom-left-radius: 50%;
+        }
+        .timeline > li.timeline-inverted > .timeline-panel {
+            float: right;
+        }
+        .timeline > li.timeline-inverted > .timeline-panel:before {
+            border-left-width: 0;
+            border-right-width: 15px;
+            left: -15px;
+            right: auto;
+        }
+        .timeline > li.timeline-inverted > .timeline-panel:after {
+            border-left-width: 0;
+            border-right-width: 14px;
+            left: -14px;
+            right: auto;
+        }
+        .timeline-badge.primary {
+            background-color: #2e6da4 !important;
+        }
+        .timeline-badge.success {
+            background-color: #3f903f !important;
+        }
+        .timeline-badge.warning {
+            background-color: #f0ad4e !important;
+        }
+        .timeline-badge.danger {
+            background-color: #d9534f !important;
+        }
+        .timeline-badge.info {
+            background-color: #5bc0de !important;
+        }
+        .timeline-title {
+            margin-top: 0;
+            color: inherit;
+        }
+        .timeline-body > p,
+        .timeline-body > ul {
+            margin-bottom: 0;
+        }
+        .timeline-body > p + p {
+            margin-top: 5px;
+        }
+        .tree {
+            min-height:20px;
+            padding:19px;
+            margin-bottom:20px;
+            background-color:#fbfbfb;
+            border:1px solid #999;
+            -webkit-border-radius:4px;
+            -moz-border-radius:4px;
+            border-radius:4px;
+            -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+            -moz-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+            box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05)
+        }
+        .tree li {
+            list-style-type:none;
+            margin:0;
+            padding:10px 5px 0 5px;
+            position:relative
+        }
+        .tree li::before, .tree li::after {
+            content:'';
+            left:-20px;
+            position:absolute;
+            right:auto
+        }
+        .tree li::before {
+            border-left:1px solid #999;
+            bottom:50px;
+            height:100%;
+            top:0;
+            width:1px
+        }
+        .tree li::after {
+            border-top:1px solid #999;
+            height:20px;
+            top:30px;
+            width:25px
+        }
+        .tree li span {
+            -moz-border-radius:5px;
+            -webkit-border-radius:5px;
+            border:1px solid #999;
+            border-radius:5px;
+            display:inline-block;
+            padding:3px 8px;
+            text-decoration:none
+        }
+        .tree li.parent_li>span {
+            cursor:pointer
+        }
+        .tree>ul>li::before, .tree>ul>li::after {
+            border:0
+        }
+        .tree li:last-child::before {
+            height:30px
+        }
+        .tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
+            background:#eee;
+            border:1px solid #94a0b4;
+            color:#000
+        }
+    </style>
     <script>
         $(document).ready(function () {
             $(".btnSelect").on('click', function () {
@@ -20,28 +208,55 @@
             });
         });
     </script>
+    <script>
+        $(function () {
+            $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+            $('.tree li.parent_li > span').on('click', function (e) {
+                var children = $(this).parent('li.parent_li').find(' > ul > li');
+                if (children.is(":visible")) {
+                    children.hide('fast');
+                    $(this).attr('title', 'Expand this branch').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
+                } else {
+                    children.show('fast');
+                    $(this).attr('title', 'Collapse this branch').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
+                }
+                e.stopPropagation();
+            });
+        });
+    </script>
 </head>
 <body>
 
-<div class="jumbotron jumbotron-fluid">
-    <div class="container">
-        <h1 class="display-4">Document Generator</h1>
-        <p class="lead">With this application, you can automatically generate recurrent documents.</p>
-    </div>
+<!-- navigation bar -->
+<div th:replace="fragments/topnav :: navbarFragment">
+</div>
+
+<!--quit confirmation popup begin -->
+<div th:replace="fragments/topnav :: confirmation">
+</div>
+
+
+<!--quit confirmation popup end -->
+<!--navigation bar end -->
+
+<!--jumbotron begin-->
+
+<div th:replace="fragments/jumbotron :: jumbotron">
+</div>
+
+<!--modal begin-->
+
+<div th:replace="fragments/howtomodal :: howtomodal">
+</div>
+<div th:replace="fragments/helpmodal :: helpmodal">
+</div>
+<div th:replace="fragments/templatesmodal :: templatesmodal">
 </div>
 
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <div class="progress">
-                <div th:text="${progressBar}" class="progress-bar" role="progressbar" aria-valuenow="20"
-                     aria-valuemin="0"
-                     aria-valuemax="100" style="width:10%" th:style="|width:${progressBar}%|">
-                </div>
-            </div>
-            <div th:if="${message ne null}" class="alert" role="alert"
-                 th:classappend="${errorFlag} ? 'alert-success' : 'alert-danger'">
-                <p th:each="m: ${message}" th:text="${m}"></p>
+            <div th:replace="fragments/progress_bar :: progress_bar">
             </div>
 
             <form action="#" th:action="@{/result}" method="POST" th:object="${userInput}"
@@ -49,7 +264,7 @@
 
                 <!-- keyword iterator -->
                 <div class="form-group" th:each="keyword : ${keywords}">
-                    <label for="formGroupExampleInput" th:text="'Keyword '+${keyword}">Keyword</label>
+                    <label for="formGroupExampleInput" th:text="${keyword}">Keyword</label>
                     <input type="text" class="form-control" id="formGroupExampleInput"
                            th:field="*{keywordsCommaSeparated}"
                            th:placeholder="'Please insert a value for '+${keyword}">
@@ -59,6 +274,7 @@
                     <thead>
                     <tr>
                         <th>Table Title</th>
+                        <th>API</th>
                         <th>Action</th>
 
                     </tr>
@@ -85,6 +301,13 @@
             </form>
         </div>
     </div>
+
+    <!--footer begin-->
+    <div th:replace="fragments/footer :: footer">
+    </div>
+
+    <!--footer end-->
+
 </div>
 
 </body>

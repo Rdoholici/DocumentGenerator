@@ -2,6 +2,9 @@ package com.documentManager.docManager.controllers;
 
 import com.documentManager.docManager.models.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -40,18 +43,14 @@ public class MainController {
 
     File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
     File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
-
     private Path templPath;
     Document document = Document.getInstance();
-    //variable for file name manipulation
 
     //variables for html manipulation and errors
     static boolean errorFlag = true;
-
-
     Set<String> message = new HashSet<String>();
-
     int progressBar = 0;
+
 
 
     //Check file size:
@@ -73,13 +72,66 @@ public class MainController {
         return "redirect:/";
     }
 
-    @GetMapping("/")
+    /// for login integration - begin
+
+    @Autowired
+    private UserRepository userRepo;
+
+    @GetMapping("")
+    public String viewHomePage() {
+        return "login";
+    }
+
+    @GetMapping("/login")
+    public String login(){
+        return "login";
+    }
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("user", new User());
+
+        return "signup_form";
+    }
+
+    @PostMapping("/process_register")
+    public String processRegister(User user, Model model) {
+        String errorMessage = "";
+        String result = "signup_form";
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+
+        try {
+            userRepo.save(user);
+            result = "register_success";
+        }
+        catch (DataIntegrityViolationException e) {
+            errorMessage =("user already exists");
+        }
+        model.addAttribute("errorMessage",errorMessage);
+        return result;
+
+    }
+
+
+    /// for login integration - end
+
+    @GetMapping("/templates_page")
     public String homepage(Model model) {
+        //serve file to user
+
+        //serve file to user
+        File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
+        File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
+
+        model.addAttribute("files", listOfFiles);
         DocumentType documentType = new DocumentType();
         model.addAttribute("documentType", documentType);
         model.addAttribute("errorFlag", false);
         model.addAttribute("listType", listOfFiles);
-        return "index";
+        model.addAttribute("files",listOfFiles);
+        return "templates_page";
     }
 
     @GetMapping("/page1")
@@ -101,11 +153,15 @@ public class MainController {
 
     @PostMapping("/page1") //for new ter from user
     public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes, Model model) throws IOException {
+
+        model.addAttribute("files",listOfFiles); // for showing the user the list of templates we have
         // check file to exist and be docx type
-        if (!FileController.verifyFile(file, ".doc")) {
+        if (!FileController.verifyFile(file, ".doc")||!FileController.verifyFile(file, ".docx")) {
+            message.clear();
             message.add("Please select a valid docx file to upload.");
             attributes.addFlashAttribute("message", message);
-            return "redirect:/";
+            return "redirect:/templates_page";
+
         }
 //TODO get user input other than file
         // save the file on the local file system
@@ -162,7 +218,7 @@ public class MainController {
     @PostMapping("/existingTemplate") //for new ter from user
     public String uploadFileExTemplate(@ModelAttribute("documentType") DocumentType documentType, RedirectAttributes attributes, Model model) throws IOException {
 
-        File folder = new File(TEMPL_UPLOAD_DIR); // for showing the user the list of templates we have
+
         File[] listOfFiles = folder.listFiles(); // for showing the user the list of templates we have
 
         for (int i = 0; i < Objects.requireNonNull(listOfFiles).length; i++) {
@@ -303,7 +359,14 @@ public class MainController {
         //clear tags from document
         DocumentGeneratorController.sanitizeKeywords();
 
-        DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
+        try {
+            DocumentGeneratorController.dataBindingIdExcel(tableTitleCommaSeparated, files);
+        }
+        catch (Exception e){
+            errorFlag = false;
+            message.add("Make sure you are uploading excel files!"); //to be improved for identifying for which file
+            attributes.addFlashAttribute("message", message);
+        }
         if (DocumentGeneratorController.isNumberOfColWordExcelDiffer()) {
             DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
@@ -344,6 +407,27 @@ public class MainController {
         try {
             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
             FileInputStream fis = new FileInputStream((RESULT + tempFileName));
+            int len;
+            byte[] buf = new byte[1024];
+            while ((len = fis.read(buf)) > 0) {
+                bos.write(buf, 0, len);
+            }
+            bos.close();
+            response.flushBuffer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequestMapping("/existing_file/{tempfileName}")
+    @ResponseBody
+    public void showExisting(@PathVariable("tempfileName") String tempFileName, HttpServletResponse response) throws IOException {
+        if (tempFileName.contains(".docx")) response.setContentType("application/msword");
+        response.setHeader("Content-Disposition", "attachment; filename=" + tempFileName);
+        response.setHeader("Content-Transfer-Encoding", "binary");
+        try {
+            BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+            FileInputStream fis = new FileInputStream((TEMPL_UPLOAD_DIR + tempFileName));
             int len;
             byte[] buf = new byte[1024];
             while ((len = fis.read(buf)) > 0) {

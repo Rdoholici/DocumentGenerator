@@ -8,6 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <style>
         .timeline {
             list-style: none;
@@ -198,15 +199,9 @@
         }
     </style>
     <script>
-        $(document).ready(function () {
-            $(".btnSelect").on('click', function () {
-                var currentRow = $(this).closest("tr");
-                var col1 = currentRow.find("td:eq(0)").html();
-                $(this)
-                    .closest('tr')
-                    .find('input.hiddenInput').val(col1);
-            });
-        });
+        $('#myModal').on('shown.bs.modal', function () {
+            $('#myInput').trigger('focus')
+        })
     </script>
     <script>
         $(function () {
@@ -224,16 +219,8 @@
             });
         });
     </script>
-
-    <!--    <script>-->
-    <!--        function myFunction() {-->
-    <!--            $('.tst').val($('.tst').val() + 'Table 1. Risks and Issues');-->
-    <!--        }-->
-    <!--    </script>-->
-
 </head>
 <body>
-
 
 <!-- navigation bar -->
 <div th:replace="fragments/topnav :: navbarFragment">
@@ -242,26 +229,26 @@
 <!--quit confirmation popup begin -->
 <div th:replace="fragments/topnav :: confirmation">
 </div>
-
-
 <!--quit confirmation popup end -->
 <!--navigation bar end -->
-
-<!--jumbotron begin-->
-
-<div th:replace="fragments/jumbotron :: jumbotron">
-</div>
 
 <!--modal begin-->
 
 <div th:replace="fragments/howtomodal :: howtomodal">
 </div>
+
 <div th:replace="fragments/helpmodal :: helpmodal">
 </div>
+
 <div th:replace="fragments/templatesmodal :: templatesmodal">
 </div>
 
 <!--modal end-->
+
+<!--jumbotron begin-->
+
+<div th:replace="fragments/jumbotron :: jumbotron">
+</div>
 
 <!--jumbotron end-->
 
@@ -271,56 +258,63 @@
             <div th:replace="fragments/progress_bar :: progress_bar">
             </div>
 
-            <form action="#" th:action="@{/result}" method="POST" th:object="${userInput}"
-                  enctype="multipart/form-data">
-
-                <!-- keyword iterator -->
-                <div class="form-group" th:each="keyword : ${keywords}">
-                    <label for="formGroupExampleInput" th:text="${keyword}">Keyword</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput"
-                           th:field="*{keywordsCommaSeparated}"
-                           th:placeholder="'Please insert a value for '+${keyword}">
-                </div>
-
-                <table class="table">
+            <div class="table-responsive-sm">
+                <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th>Table Title</th>
-                        <th>API</th>
+                        <th>#</th>
+                        <th>Description</th>
+                        <th>Source</th>
                         <th>Action</th>
-
                     </tr>
                     </thead>
-
                     <tbody>
-                    <tr th:each="table : ${tableTitles}">
-                        <td th:text="${table}"></td>
-                        <td>
-                            <input type="text" class="form-control" id="formGroupExampleInput3" placeholder="Api key"
-                                   th:field="*{apisCommaSeparated}">
+                    <tr>
+
+                        <form action="#" th:action="@{/existingTemplate}" method="post" th:object="${documentType}">
+                       <td>1</td>
+                      <td>Choose a template from our repo</td>
+                        <td><div class="form-group">
+                          <select class="form-control" id="sel1" th:field="*{name}">
+                                <option th:each="p : ${listType}" th:value="${p.getName()}" th:text="${p.getName()}" />
+                            </select>
+                        </div>
                         </td>
                         <td>
-                            <input style="display:none" type="text" class="form-control hiddenInput" id="id1"
-                                   th:field="*{tableTitleCommaSeparated}">
-                            <input type="file" class="form-control-file btnSelect" id="files" name="files"
-                                   accept=".xls,.xlsx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            <button type="submit" class="btn btn-info btn-md btn-block">
+                                <span class="glyphicon glyphicon-upload"></span> Select
+                            </button>
                         </td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <form method="post" th:action="@{/page1}" enctype="multipart/form-data">
+                        <td>2</td>
+                        <td>Upload a new template</td>
+                        <td><div class="form-group">
+                            <input type="file" class="form-control-file" id="file" name="file"
+                                   accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                        </div></td>
+                        <td>
+                            <button type="submit" class="btn btn-info btn-md btn-block">
+                                <span class="glyphicon glyphicon-upload"></span> Upload
+                            </button>
+                        </td>
+                        </form>
                     </tr>
                     </tbody>
                 </table>
+            </div>
 
-                <button type="submit" id="btn1" class="btn btn-primary">Submit</button>
-            </form>
         </div>
     </div>
-
-    <!--footer begin-->
+<!--footer begin-->
     <div th:replace="fragments/footer :: footer">
     </div>
 
-    <!--footer end-->
-
+<!--footer end-->
 </div>
+
 
 </body>
 </html>

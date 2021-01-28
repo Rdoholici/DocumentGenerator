@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div th:fragment="helpmodal">
+    <div class="container">
+        <div class="modal fade" id="myHelpModal" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Help</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="tree well">
+                            <ul>
+                                <li>
+                                    <span><i class="icon-folder-open"></i> Step 1 </span> <a href="">Select an existing or a new file.</a>
+                                    <ul>
+                                        <li>
+                                            <span><i class="icon-minus-sign"></i> 1.1.</span> <a href="">New File</a>
+                                            <ul>
+                                                <li>
+                                                    <span><i class="icon-leaf"></i> 1.1.1</span> <a href="">Edit the New File</a>
+                                                    <ul>
+                                                        <li>
+                                                            <span><i class="icon-minus-sign"></i> 1.1.2</span> <a href="">Place the word(s) you want to replace between tags <br/> e.g. &#60;change&#62; word &#60;change&#62;. For the dynamic data tables, make sure <br/> you only complete the table headers within the file.</span></a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <span><i class="icon-minus-sign"></i> 1.2</span> <a href="">Existing File</a>
+                                            <ul>
+                                                <li>
+                                                    <span><i class="icon-leaf"></i>1.2.1</span> <a href="">Choose a predefined type and upload the file.</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span><i class="icon-folder-open"></i> Step 2 </span> <a href="">Add your data.</a>
+                                    <ul>
+                                        <li>
+                                            <span><i class="icon-minus-sign"></i> 2.1.</span> <a href="">Insert your keywords</a>
+                                        </li>
+                                        <li>
+                                            <span><i class="icon-minus-sign"></i> 2.2.</span> <a href="">Add your table sources</a>
+                                            <ul>
+                                                <li>
+                                                    <span><i class="icon-leaf"></i> 2.2.1</span> <a href="">API</a>
+                                                </li>
+                                                <li>
+                                                    <span><i class="icon-leaf"></i> 2.2.2</span> <a href="">Excel</a>
+                                                </li>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <span><i class="icon-minus-sign"></i> 2.3</span> <a href="">Click Submit</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span><i class="icon-folder-open"></i> Step 3 </span> <a href="">Download your file</a>
+                                </li>
+                            </ul>
+                            </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
