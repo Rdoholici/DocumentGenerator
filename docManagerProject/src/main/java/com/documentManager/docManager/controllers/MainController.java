@@ -372,16 +372,17 @@ public class MainController {
         if (message.size() >= 1) {
             return "redirect:/page1";
         }
-//        for (String key : document.getCompletedKeywords().keySet()) {
-//            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
-//        }
+
+        for (String key : document.getCompletedKeywords().keySet()) {
+            DocumentGeneratorController.replaceTextInAllParagraphs(key, document.getCompletedKeywords().get(key));
+        }
 
         DocumentGeneratorController.saveDocument(RESULT + "modificat.docx");
 
         //iterate all keywords and replace them - aspose
-        for (String key : document.getCompletedKeywords().keySet()) {
-            DocumentGeneratorController.replaceKeywordsAspose("<change>" + key + "<change>", document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
-        }
+//        for (String key : document.getCompletedKeywords().keySet()) {
+//            DocumentGeneratorController.replaceKeywordsAspose("<change>" + key + "<change>", document.getCompletedKeywords().get(key), "./uploads/results/modificat.docx");
+//        }
 
         //make document null
         document.clear();

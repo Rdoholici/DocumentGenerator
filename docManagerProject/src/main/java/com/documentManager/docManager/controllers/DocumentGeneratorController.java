@@ -189,50 +189,50 @@ public class DocumentGeneratorController {
         }
     }
 
-    public static void sanitizeTags() {
-        List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
-        for (XWPFParagraph para : allParas) {
-            List<XWPFRun> runs = para.getRuns();
-            for (XWPFRun run : runs) {
-                String runText = run.getText(0);
-                String newRunText = runText.replaceAll("<change>", "");
-                run.setText(newRunText.trim(), 0);
-            }
-        }
-    }
+//    public static void sanitizeTags() {
+//        List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
+//        for (XWPFParagraph para : allParas) {
+//            List<XWPFRun> runs = para.getRuns();
+//            for (XWPFRun run : runs) {
+//                String runText = run.getText(0);
+//                String newRunText = runText.replaceAll("<change>", "");
+//                run.setText(newRunText.trim(), 0);
+//            }
+//        }
+//    }
 
-    public static void sanitizeKeywords() {
-        List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
-        for (XWPFParagraph paragraph : allParas) {
-            List<XWPFRun> runs = paragraph.getRuns();
-            for (int i = 0; i < runs.size(); i++) {
-                //check if i is valid in range
-                if (i + 1 > runs.size() || i + 2 >= runs.size()) {
-                    continue;
-                }
-
-                //check if this run has <
-                boolean hasBegin = runs.get(i).getText(0).contains("<");
-                //if yes check if next run has change
-                boolean hasMid = runs.get(i + 1).getText(0).contains("change");
-                //if yes to both check if next run has >
-                boolean hasEnd = runs.get(i + 2).getText(0).contains(">");
-
-                //if yes to all set text to first run to be same but without last < | set text to middle run to be nothing | set text to last run to be same but without first <
-                if (hasBegin && hasMid && hasEnd) {
-                    String beginText = runs.get(i).getText(0);
-                    beginText = beginText.substring(0, beginText.lastIndexOf("<"));
-                    runs.get(i).setText(beginText, 0);
-
-                    String endText = runs.get(i + 2).getText(0);
-                    endText = endText.substring(1);
-                    runs.get(i + 2).setText(endText, 0);
-
-                    runs.get(i + 1).setText("", 0);
-                }
-            }
-        }
-    }
+//    public static void sanitizeKeywords() {
+//        List<XWPFParagraph> allParas = xwpfDocument.getParagraphs();
+//        for (XWPFParagraph paragraph : allParas) {
+//            List<XWPFRun> runs = paragraph.getRuns();
+//            for (int i = 0; i < runs.size(); i++) {
+//                //check if i is valid in range
+//                if (i + 1 > runs.size() || i + 2 >= runs.size()) {
+//                    continue;
+//                }
+//
+//                //check if this run has <
+//                boolean hasBegin = runs.get(i).getText(0).contains("<");
+//                //if yes check if next run has change
+//                boolean hasMid = runs.get(i + 1).getText(0).contains("change");
+//                //if yes to both check if next run has >
+//                boolean hasEnd = runs.get(i + 2).getText(0).contains(">");
+//
+//                //if yes to all set text to first run to be same but without last < | set text to middle run to be nothing | set text to last run to be same but without first <
+//                if (hasBegin && hasMid && hasEnd) {
+//                    String beginText = runs.get(i).getText(0);
+//                    beginText = beginText.substring(0, beginText.lastIndexOf("<"));
+//                    runs.get(i).setText(beginText, 0);
+//
+//                    String endText = runs.get(i + 2).getText(0);
+//                    endText = endText.substring(1);
+//                    runs.get(i + 2).setText(endText, 0);
+//
+//                    runs.get(i + 1).setText("", 0);
+//                }
+//            }
+//        }
+//    }
 
     public static void replaceKeywordsAspose(String textToReplace, String newValue, String path) throws Exception {
         com.aspose.words.Document doc = new com.aspose.words.Document(path);
@@ -245,25 +245,79 @@ public class DocumentGeneratorController {
     }
 
     public static void replaceTextInAllParagraphs(String textToReplace, String newValue) {
-        List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains("<change>" + textToReplace + "<change>")).collect(Collectors.toList());
+        String textToReplaceWithTags = "<change>" + textToReplace + "<change>";
+        List<XWPFParagraph> para = xwpfDocument.getParagraphs().stream().filter(p -> p.getText().contains(textToReplaceWithTags)).collect(Collectors.toList());
+//
+//        for (XWPFParagraph paragraph : para) {
+//            //get the correct text
+//            String paragraphText = paragraph.getText();
+//
+//            paragraphText = paragraphText.replaceAll("<change>" + textToReplace + "<change>", newValue.trim());
+//
+//            //remove all runs
+//            int runs = paragraph.getRuns().size();
+//            for (int i = 0; i < runs; i++) {
+//                paragraph.removeRun(0);
+//            }
+//            //add new run
+//            XWPFRun newRun = paragraph.createRun();
+//            newRun.setText(paragraphText);
+//        }
 
         for (XWPFParagraph paragraph : para) {
-            //get the correct text
-            String paragraphText = paragraph.getText();
 
-            paragraphText = paragraphText.replaceAll("<change>" + textToReplace + "<change>", newValue.trim());
+            // go thru paragraph runs and add text from run to string
+            // check if string that has all the runs contains the text to replace
+            // if yes -> i is the run index where the text stops
 
-            //remove all runs
-            int runs = paragraph.getRuns().size();
-            for (int i = 0; i < runs; i++) {
-                paragraph.removeRun(0);
+            //go thru runs until runs[i] and remove text from string
+            //check if string equals text to replace
+            //if yes -> i is the run index where the text begins
+
+            //runs[begin] - runs[end] - must be replaced with one run that has text to be replaced
+
+            //declare variables
+            String paragraphText = "";
+            int beginIndex = 0;
+            int endIndex = 0;
+
+            //iterate runs to find final run
+            for (int i = 0; i < paragraph.getRuns().size(); i++) {
+
+                //add current run text to paragraph text
+                String runText = paragraph.getRuns().get(i).getText(0);
+                paragraphText = paragraphText + runText;
+
+                //verify if the text so far contains the text to be replaced and tags
+                if (paragraphText.contains(textToReplaceWithTags)) {
+                    //i is the last run
+                    endIndex = i;
+                    break;
+                }
             }
-            //add new run
-            XWPFRun newRun = paragraph.createRun();
-            newRun.setText(paragraphText);
-        }
 
-//        for (XWPFParagraph paragraph : para) {
+            //iterate runs to find first run of text to be replaced
+            for (int i = 0; i < endIndex; i++) {
+                String runText = paragraph.getRuns().get(i).getText(0);
+//                paragraphText = paragraphText.replace(runText, "");//nit replacebineri
+                paragraphText = paragraphText.substring(runText.length());
+
+                //verify if the text is equal to the txt to be replaced
+                if (paragraphText.equals(textToReplaceWithTags)) {
+                    beginIndex = i +1;
+                    break;
+                }
+            }
+
+            //remove the run at begin index until there is only 1 run left from the range of runs
+            for (int i = 0; i <endIndex-beginIndex ; i++) {
+                paragraph.removeRun(beginIndex);
+            }
+
+            paragraph.getRuns().get(beginIndex).setText(newValue,0);
+            System.out.println(paragraph.getText());
+
+
 //            List<XWPFRun> runs = paragraph.getRuns();
 //            if (runs != null) {
 //                for (XWPFRun run : runs) {
@@ -273,6 +327,6 @@ public class DocumentGeneratorController {
 //                    }
 //                }
 //            }
-//        }
+        }
     }
 }
